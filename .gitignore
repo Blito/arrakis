@@ -1,0 +1,5 @@
+# Dependencies folder
+/lib
+
+# QtCreator stuff
+CMakeLists.txt.*
