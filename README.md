@@ -42,3 +42,8 @@ Then,
 To run,
 
     ./arrakis
+
+
+## Known Issues
+
+* websocketpp needs Boost when built with MinGW. If you still want to use the standalone version, see [this PR](https://github.com/zaphoyd/websocketpp/pull/479/). Apparently a libstdc++ bug, see issue [#68307](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68307)
