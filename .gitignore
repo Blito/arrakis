@@ -1,5 +1,8 @@
 # Dependencies folder
 /lib
 
+# Build dir
+/build
+
 # QtCreator stuff
 CMakeLists.txt.*
