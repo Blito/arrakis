@@ -4,6 +4,7 @@
 #include <exception>
 
 #include <core/server.h>
+#include <systems/inputsystem.h>
 
 int main()
 {
@@ -13,7 +14,14 @@ int main()
 
     try
     {
-        arrakis::core::Server server;
+        using namespace arrakis::core;
+        using namespace arrakis::systems;
+
+        Server server;
+        InputSystem input;
+
+        server.registerTo(Server::MessageType::Input, input);
+        server.run();
     }
     catch (std::exception ex)
     {

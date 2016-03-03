@@ -13,6 +13,8 @@ namespace arrakis
 namespace core
 {
 
+class MessageReceiver;
+
 /**
  * @brief The Server class represents a game server.
  *
@@ -23,7 +25,6 @@ class Server
 {
 public:
     enum class MessageType { Input };
-    using MessageHandler = std::function<void(std::string)>;
 
     /**
      * @brief Server Sets up the server listening at the given port.
@@ -35,7 +36,7 @@ public:
      */
     void run();
 
-    void registerTo(MessageType msgType, MessageHandler msgHdlr);
+    void registerTo(MessageType msgType, MessageReceiver & receiver);
 
 protected:
     using server = websocketpp::server<websocketpp::config::asio>;
@@ -51,7 +52,7 @@ protected:
             return static_cast<std::size_t>(t);
         }
     };
-    using listeners = std::unordered_multimap<MessageType, MessageHandler, EnumClassHash>;
+    using listeners = std::unordered_multimap<MessageType, MessageReceiver &, EnumClassHash>;
 
     /**
      * @brief onMessage Parses incoming messages and dispatches it accordingly.
