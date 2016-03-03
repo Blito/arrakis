@@ -36,6 +36,10 @@ public:
      */
     void run();
 
+    /**
+     * @brief registerTo Registers a receiver to be notified when a message of
+     * a specific type reaches the server.
+     */
     void registerTo(MessageType msgType, MessageReceiver & receiver);
 
 protected:
