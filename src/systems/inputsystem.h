@@ -1,8 +1,6 @@
 #ifndef INPUTSYSTEM_H
 #define INPUTSYSTEM_H
 
-#include <iostream>
-
 #include <core/messagereceiver.h>
 
 namespace arrakis
@@ -30,10 +28,7 @@ protected:
      * the server redirects it to InputSystem, InputSystem updates its status (P
      * key is now pressed).
      */
-    virtual void notify(core::MessageReceiver::Message msg) override
-    {
-        std::cout << "InputSystem: " << msg << std::endl;
-    }
+    virtual void notify(core::MessageReceiver::Message msg) override;
 };
 
 } // end systems

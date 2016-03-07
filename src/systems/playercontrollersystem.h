@@ -15,7 +15,7 @@ class InputSystem;
  * @brief The PlayerControllerSystem transforms input registered in the InputSystem
  * to actions applied to Components owned by the player.
  */
-class PlayerControllerSystem : entityx::System<PlayerControllerSystem>
+class PlayerControllerSystem : public entityx::System<PlayerControllerSystem>
 {
 public:
     PlayerControllerSystem(InputSystem & inputSystem);

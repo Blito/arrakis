@@ -5,7 +5,7 @@ cmake_minimum_required (VERSION 3.1.0)
 # Build using C++14
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
-file (GLOB_RECURSE arrakis_SRC "src/*.cpp")
+file (GLOB_RECURSE arrakis_SRC "src/*.cpp" "src/*.h")
 add_executable(arrakis ${arrakis_SRC})
 
 include_directories("${CMAKE_SOURCE_DIR}/src")
