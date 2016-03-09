@@ -2,6 +2,7 @@
 #define INPUTSYSTEM_H
 
 #include <core/messagereceiver.h>
+#include <array>
 
 namespace arrakis
 {
@@ -18,7 +19,20 @@ namespace systems
 class InputSystem : public core::MessageReceiver
 {
 public:
+    enum class Action : short
+    {
+        UP    = 0,
+        LEFT  = 1,
+        RIGHT = 2,
+        DOWN  = 3,
+        JUMP  = 4,
+        A     = 5,
+        B     = 6
+    };
+
     InputSystem();
+
+    bool isActive(Action action) const;
 
 protected:
     /**
@@ -29,6 +43,9 @@ protected:
      * key is now pressed).
      */
     virtual void notify(core::MessageReceiver::Message msg) override;
+
+    static constexpr size_t actions_size = 7;
+    std::array<bool, actions_size> m_actions; //< supported actions
 };
 
 } // end systems
