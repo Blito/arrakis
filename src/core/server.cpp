@@ -1,6 +1,6 @@
 #include "server.h"
 
-#include <core/messagereceiver.h>
+#include <algorithm>
 
 using namespace arrakis::core;
 
@@ -20,12 +20,16 @@ void Server::run()
     m_server.run();
 }
 
+void Server::sendMessage(const Message & msg)
+{
+}
+
 void Server::registerTo(MessageType msgType, MessageReceiver & receiver)
 {
     m_listeners.insert({ msgType, receiver });
 }
 
-void Server::onMessage(websocketpp::connection_hdl hdl, server::message_ptr msg)
+void Server::onMessage(client hdl, server::message_ptr msg)
 {
     std::cout << "Server: " << msg->get_payload() << std::endl;
 
@@ -33,4 +37,9 @@ void Server::onMessage(websocketpp::connection_hdl hdl, server::message_ptr msg)
     {
         msgType_hdlr.second.notify(msg->get_payload());
     }
+}
+
+Server::Message Server::parseMessage(const server::message_ptr & msg)
+{
+
 }

@@ -1,7 +1,7 @@
 #ifndef INPUTSYSTEM_H
 #define INPUTSYSTEM_H
 
-#include <core/messagereceiver.h>
+#include <core/server.h>
 #include <array>
 
 namespace arrakis
@@ -42,7 +42,7 @@ protected:
      * the server redirects it to InputSystem, InputSystem updates its status (P
      * key is now pressed).
      */
-    virtual void notify(core::MessageReceiver::Message msg) override;
+    virtual void notify(core::Server::Message msg) override;
 
     static constexpr size_t actions_size = 7;
     std::array<bool, actions_size> m_actions; //< supported actions
