@@ -8,10 +8,11 @@
 
 using namespace arrakis::core;
 
-Game::Game() :
+Game::Game(int server_port) :
     m_entityManager(m_eventManager),
     m_systemsManager(m_entityManager, m_eventManager),
-    m_player(m_entityManager.create())
+    m_player(m_entityManager.create()),
+    m_server(server_port)
 {
     m_systemsManager.add<systems::PlayerControllerSystem>(m_input);
     m_systemsManager.configure();
@@ -22,6 +23,7 @@ Game::Game() :
     {
         m_server.registerTo(Server::MessageType::Input, m_input);
         m_serverThread = std::thread([this] { m_server.run(); });
+        std::cout << "Server started in port " << server_port << std::endl;
     }
     catch (std::exception ex)
     {

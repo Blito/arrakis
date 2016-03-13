@@ -24,7 +24,7 @@ class MessageReceiver;
 class Server
 {
 public:
-    enum class MessageType { Input };
+    enum class MessageType { NewClient, Input, Output, ParseError };
     struct Message
     {
         MessageType type;

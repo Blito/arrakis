@@ -1,5 +1,7 @@
 #include "server.h"
 
+#include <rapidjson/document.h>
+
 #include <algorithm>
 
 using namespace arrakis::core;
@@ -22,6 +24,13 @@ void Server::run()
 
 void Server::sendMessage(const Message & msg)
 {
+    if (msg.type != MessageType::Output)
+        return;
+
+    for (auto client : m_output_clients)
+    {
+        m_server.send(client, msg.payload, websocketpp::frame::opcode::TEXT);
+    }
 }
 
 void Server::registerTo(MessageType msgType, MessageReceiver & receiver)
@@ -31,15 +40,62 @@ void Server::registerTo(MessageType msgType, MessageReceiver & receiver)
 
 void Server::onMessage(client hdl, server::message_ptr msg)
 {
-    std::cout << "Server: " << msg->get_payload() << std::endl;
+    auto parsed_msg = parseMessage(msg);
 
-    for (auto & msgType_hdlr : m_listeners)
+    switch (parsed_msg.type)
     {
-        msgType_hdlr.second.notify(msg->get_payload());
+    // If a new message asks for a new client, add it to client lists.
+    case MessageType::NewClient:
+        //TODO: CHECK THAT IT IS A NEW CLIENT
+        if (parsed_msg.payload == "InputClient")
+        {
+            m_input_clients.push_back(hdl);
+        }
+        else if (parsed_msg.payload == "OutputClient")
+        {
+            m_output_clients.push_back(hdl);
+        }
+        break;
+
+    // If incoming message could not be classified.
+    case MessageType::ParseError:
+        break;
+
+    // If another type of message comes, forward it to interested objects inside our server.
+    case MessageType::Input:
+        //TODO: CHECK THAT IT IS AN EXISTING CLIENT
+        auto range = m_listeners.equal_range(parsed_msg.type);
+        std::for_each(range.first, range.second, [&parsed_msg](auto listener)
+        {
+            listener.second.notify(parsed_msg);
+        });
+        break;
     }
+
 }
 
+/**
+ * Current supported messages:
+ *
+ * NewClient type request messages:
+ * {new-client:[InputClient|OutputClient]}
+ *
+ * Input type messages:
+ * {action[-stopped]:[UP|DOWN|LEFT|RIGHT|JUMP|A|B]}
+ */
 Server::Message Server::parseMessage(const server::message_ptr & msg)
 {
+    using namespace rapidjson;
+    Document document;
 
+    if (document.Parse(msg->get_payload().c_str()).HasParseError())
+        return { MessageType::ParseError, "" };
+
+    if (document.HasMember("action") || document.HasMember("action-stopped"))
+        return { MessageType::Input, msg->get_payload() };
+
+    if (document.HasMember("new-client"))
+        return { MessageType::NewClient, msg->get_payload() };
+
+    return { MessageType::ParseError, "" };
 }

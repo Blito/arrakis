@@ -7,3 +7,6 @@
 [submodule "lib/asio"]
 	path = lib/asio
 	url = https://github.com/chriskohlhoff/asio.git
+[submodule "lib/rapidjson"]
+	path = lib/rapidjson
+	url = https://github.com/miloyip/rapidjson.git

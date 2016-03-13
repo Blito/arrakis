@@ -18,7 +18,7 @@ namespace core
 class Game
 {
 public:
-    Game();
+    Game(int server_port);
 
     void run();
 

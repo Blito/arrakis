@@ -16,12 +16,12 @@ bool InputSystem::isActive(Action action) const
 
 void InputSystem::notify(core::Server::Message msg)
 {
-    std::cout << "InputSystem: " << msg << std::endl;
+    std::cout << "InputSystem: " << msg.payload << std::endl;
 
     const std::string limit_chars = ",}";
 
     auto change_action_status =
-            [&limit_chars, this] (const std::string & action_tag, const core::Server::Message & msg, bool new_status)
+            [&limit_chars, this] (const std::string & action_tag, const std::string & msg, bool new_status)
             {
                 auto action_begin_pos = msg.find(action_tag);
                 if (action_begin_pos == std::string::npos)
@@ -36,6 +36,8 @@ void InputSystem::notify(core::Server::Message msg)
                 }
 
                 std::string action = msg.substr(action_begin_pos, action_end_pos - action_begin_pos);
+
+                std::cout << action << std::endl;
 
                 if (action == "UP")
                 {
@@ -71,6 +73,6 @@ void InputSystem::notify(core::Server::Message msg)
                 }
             };
 
-    change_action_status("action:", msg, true);
-    change_action_status("action-stopped:", msg, false);
+    change_action_status("action:", msg.payload, true);
+    change_action_status("action-stopped:", msg.payload, false);
 }

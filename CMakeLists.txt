@@ -34,3 +34,7 @@ target_link_libraries(arrakis Threads::Threads)
 add_definitions("-DASIO_STANDALONE")
 set (ASIO_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/lib/asio/asio/include/" CACHE PATH "Base ASIO directory (NOT Boost.ASIO).")
 include_directories(${ASIO_INCLUDE_DIR})
+
+# RapidJSON
+set (RAPIDJSON_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/lib/rapidjson/include/" CACHE PATH "Include dir inside base RapidJSON.")
+include_directories(${RAPIDJSON_INCLUDE_DIR})
