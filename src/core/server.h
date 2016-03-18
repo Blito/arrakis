@@ -3,9 +3,12 @@
 
 #include <functional>
 #include <unordered_map>
+#include <memory>
 
 #include <websocketpp/server.hpp>
 #include <websocketpp/config/asio_no_tls.hpp>
+
+#include <rapidjson/document.h>
 
 namespace arrakis
 {
@@ -79,7 +82,7 @@ protected:
     /**
      * @brief parseMessage Parses an incoming message into a Message.
      */
-    Message parseMessage(const server::message_ptr & msg);
+    std::pair<MessageType, std::unique_ptr<rapidjson::Document>> parseMessage(const server::message_ptr & msg);
 
     server m_server;          //< websocketpp server
     clients m_input_clients;  //< clients that send input messages

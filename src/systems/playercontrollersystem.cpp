@@ -14,13 +14,23 @@ PlayerControllerSystem::PlayerControllerSystem(InputSystem & inputSystem) :
 void PlayerControllerSystem::update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt)
 {
     auto up_active = m_inputSystem.isActive(InputSystem::Action::UP);
+//    if (!up_active)
+//    {
+//        return;
+//    }
+
     entities.each<components::Position>([dt, up_active](entityx::Entity entity, components::Position & position)
     {
-        position.y = std::sin(position.y + dt);
-
         if (up_active)
         {
             position.y++;
+        }
+        else
+        {
+            if (position.y > 0)
+            {
+                position.y--;
+            }
         }
     });
 }

@@ -1,7 +1,5 @@
 #include "server.h"
 
-#include <rapidjson/document.h>
-
 #include <algorithm>
 
 using namespace arrakis::core;
@@ -29,7 +27,10 @@ void Server::sendMessage(const Message & msg)
 
     for (auto client : m_output_clients)
     {
-        m_server.send(client, msg.payload, websocketpp::frame::opcode::TEXT);
+        if (!client.expired())
+        {
+            m_server.send(client, msg.payload, websocketpp::frame::opcode::TEXT);
+        }
     }
 }
 
@@ -42,19 +43,24 @@ void Server::onMessage(client hdl, server::message_ptr msg)
 {
     auto parsed_msg = parseMessage(msg);
 
-    switch (parsed_msg.type)
+    switch (parsed_msg.first)
     {
     // If a new message asks for a new client, add it to client lists.
     case MessageType::NewClient:
+    {
+        auto client_type = std::string((*parsed_msg.second)["new-client"].GetString());
         //TODO: CHECK THAT IT IS A NEW CLIENT
-        if (parsed_msg.payload == "InputClient")
+        if (client_type == "InputClient")
         {
+            std::cout << "New input client." << std::endl;
             m_input_clients.push_back(hdl);
         }
-        else if (parsed_msg.payload == "OutputClient")
+        else if (client_type == "OutputClient")
         {
+            std::cout << "New output client." << std::endl;
             m_output_clients.push_back(hdl);
         }
+    }
         break;
 
     // If incoming message could not be classified.
@@ -63,12 +69,15 @@ void Server::onMessage(client hdl, server::message_ptr msg)
 
     // If another type of message comes, forward it to interested objects inside our server.
     case MessageType::Input:
+    {
         //TODO: CHECK THAT IT IS AN EXISTING CLIENT
-        auto range = m_listeners.equal_range(parsed_msg.type);
-        std::for_each(range.first, range.second, [&parsed_msg](auto listener)
+        auto range = m_listeners.equal_range(parsed_msg.first);
+        Message message {parsed_msg.first, msg->get_payload()};
+        std::for_each(range.first, range.second, [message](auto listener)
         {
-            listener.second.notify(parsed_msg);
+            listener.second.notify(message);
         });
+    }
         break;
     }
 
@@ -83,19 +92,18 @@ void Server::onMessage(client hdl, server::message_ptr msg)
  * Input type messages:
  * {action[-stopped]:[UP|DOWN|LEFT|RIGHT|JUMP|A|B]}
  */
-Server::Message Server::parseMessage(const server::message_ptr & msg)
+std::pair<Server::MessageType, std::unique_ptr<rapidjson::Document>> Server::parseMessage(const server::message_ptr & msg)
 {
-    using namespace rapidjson;
-    Document document;
+    auto document = std::make_unique<rapidjson::Document>();
 
-    if (document.Parse(msg->get_payload().c_str()).HasParseError())
-        return { MessageType::ParseError, "" };
+    if (document->Parse(msg->get_payload().c_str()).HasParseError())
+        return { MessageType::ParseError, std::move(document) };
 
-    if (document.HasMember("action") || document.HasMember("action-stopped"))
-        return { MessageType::Input, msg->get_payload() };
+    if (document->HasMember("action") || document->HasMember("action-stopped"))
+        return { MessageType::Input, std::move(document) };
 
-    if (document.HasMember("new-client"))
-        return { MessageType::NewClient, msg->get_payload() };
+    if (document->HasMember("new-client"))
+        return { MessageType::NewClient, std::move(document) };
 
-    return { MessageType::ParseError, "" };
+    return { MessageType::ParseError, std::move(document) };
 }

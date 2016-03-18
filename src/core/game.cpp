@@ -3,8 +3,10 @@
 #include <iostream>
 
 #include <components/position.h>
+#include <components/rendering.h>
 #include <systems/inputsystem.h>
 #include <systems/playercontrollersystem.h>
+#include <systems/renderingsystem.h>
 
 using namespace arrakis::core;
 
@@ -15,9 +17,11 @@ Game::Game(int server_port) :
     m_server(server_port)
 {
     m_systemsManager.add<systems::PlayerControllerSystem>(m_input);
+    m_systemsManager.add<systems::RenderingSystem>(m_server);
     m_systemsManager.configure();
 
     m_player.assign<components::Position>(10, 100);
+    m_player.assign<components::Rendering>(true);
 
     try
     {
@@ -41,6 +45,7 @@ void Game::run()
         using namespace std::literals::chrono_literals;
 
         m_systemsManager.update<systems::PlayerControllerSystem>(10.0f);
+        m_systemsManager.update<systems::RenderingSystem>(10.0f);
         std::this_thread::sleep_for(100ms);
     }
 }

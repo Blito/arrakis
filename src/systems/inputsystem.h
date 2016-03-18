@@ -30,8 +30,6 @@ public:
         B     = 6
     };
 
-    InputSystem();
-
     bool isActive(Action action) const;
 
 protected:
@@ -45,7 +43,7 @@ protected:
     virtual void notify(core::Server::Message msg) override;
 
     static constexpr size_t actions_size = 7;
-    std::array<bool, actions_size> m_actions; //< supported actions
+    std::array<bool, actions_size> m_actions { {false} }; //< supported actions
 };
 
 } // end systems
