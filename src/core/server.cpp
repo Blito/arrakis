@@ -4,7 +4,8 @@
 
 using namespace arrakis::core;
 
-Server::Server(int port)
+Server::Server(systems::InputSystem & input_system, int port) :
+    m_input_system(input_system)
 {
     auto message_handler = [this] (auto hdl, auto msg) { onMessage(hdl, msg); };
 
@@ -27,9 +28,9 @@ void Server::sendMessage(const Message & msg)
 
     for (auto client : m_output_clients)
     {
-        if (!client.expired())
+        if (!client.first.expired())
         {
-            m_server.send(client, msg.payload, websocketpp::frame::opcode::TEXT);
+            m_server.send(client.first, msg.payload, websocketpp::frame::opcode::TEXT);
         }
     }
 }
@@ -53,12 +54,16 @@ void Server::onMessage(client hdl, server::message_ptr msg)
         if (client_type == "InputClient")
         {
             std::cout << "New input client." << std::endl;
-            m_input_clients.push_back(hdl);
+            if (m_input_system.isRoomForNewPlayer())
+            {
+                auto && player_id = m_input_system.createNewPlayer();
+                m_input_clients.insert({hdl, player_id});
+            }
         }
         else if (client_type == "OutputClient")
         {
             std::cout << "New output client." << std::endl;
-            m_output_clients.push_back(hdl);
+            m_output_clients.insert({hdl, systems::InputSystem::Player::ONE});
         }
     }
         break;
@@ -92,7 +97,7 @@ void Server::onMessage(client hdl, server::message_ptr msg)
  * Input type messages:
  * {action[-stopped]:[UP|DOWN|LEFT|RIGHT|JUMP|A|B]}
  */
-std::pair<Server::MessageType, std::unique_ptr<rapidjson::Document>> Server::parseMessage(const server::message_ptr & msg)
+std::pair<MessageType, std::unique_ptr<rapidjson::Document>> Server::parseMessage(const server::message_ptr & msg)
 {
     auto document = std::make_unique<rapidjson::Document>();
 

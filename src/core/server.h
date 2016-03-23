@@ -10,6 +10,9 @@
 
 #include <rapidjson/document.h>
 
+#include <core/message.h>
+#include <systems/inputsystem.h>
+
 namespace arrakis
 {
 
@@ -27,17 +30,10 @@ class MessageReceiver;
 class Server
 {
 public:
-    enum class MessageType { NewClient, Input, Output, ParseError };
-    struct Message
-    {
-        MessageType type;
-        std::string payload;
-    };
-
     /**
      * @brief Server Sets up the server listening at the given port.
      */
-    Server(int port = 9002);
+    Server(systems::InputSystem & input_system, int port = 9002);
 
     /**
      * @brief run Starts the server.
@@ -59,7 +55,7 @@ public:
 protected:
     using server = websocketpp::server<websocketpp::config::asio>;
     using client = websocketpp::connection_hdl;
-    using clients = std::vector<client>;
+    using clients = std::map<client, systems::InputSystem::Player>;
 
     /**
      * We need this to store enum classes as unordered_map keys.
@@ -88,16 +84,7 @@ protected:
     clients m_input_clients;  //< clients that send input messages
     clients m_output_clients; //< clients that wait for our output messages
     listeners m_listeners;    //< who should we notify in our game system
-};
-
-/**
- * @brief The MessageReceiver class is a simple Observer interface.
- * @sa arrakis::core::Server::registerTo(...)
- */
-class MessageReceiver
-{
-public:
-    virtual void notify(Server::Message msg) = 0;
+    systems::InputSystem & m_input_system;
 };
 
 } // end core

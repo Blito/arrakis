@@ -13,7 +13,7 @@ PlayerControllerSystem::PlayerControllerSystem(InputSystem & inputSystem) :
 
 void PlayerControllerSystem::update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt)
 {
-    auto up_active = m_inputSystem.isActive(InputSystem::Action::UP);
+    auto up_active = m_inputSystem.isPlayerUsing(InputSystem::Player::ONE, InputSystem::Action::UP);
 //    if (!up_active)
 //    {
 //        return;

@@ -1,7 +1,7 @@
 #ifndef INPUTSYSTEM_H
 #define INPUTSYSTEM_H
 
-#include <core/server.h>
+#include <core/message.h>
 #include <array>
 
 namespace arrakis
@@ -19,7 +19,7 @@ namespace systems
 class InputSystem : public core::MessageReceiver
 {
 public:
-    enum class Action : short
+    enum class Action : unsigned short
     {
         UP    = 0,
         LEFT  = 1,
@@ -30,7 +30,25 @@ public:
         B     = 6
     };
 
-    bool isActive(Action action) const;
+    enum class Player : unsigned short
+    {
+        ONE = 0,
+        TWO = 1
+    };
+
+    bool isPlayerUsing(Player player, Action action) const;
+
+    bool isPlaying(Player player) const;
+
+    bool isRoomForNewPlayer() const;
+
+    /**
+     * @brief createNewPlayer Creates a new player.
+     * IMPORTANT: does not check if this is possible, use isRoomForNewPlayer() first.
+     * @return The new player handle
+     * @sa isRoomForNewPlayer()
+     */
+    Player createNewPlayer();
 
 protected:
     /**
@@ -40,10 +58,23 @@ protected:
      * the server redirects it to InputSystem, InputSystem updates its status (P
      * key is now pressed).
      */
-    virtual void notify(core::Server::Message msg) override;
+    virtual void notify(core::Message msg) override;
 
-    static constexpr size_t actions_size = 7;
-    std::array<bool, actions_size> m_actions { {false} }; //< supported actions
+    static constexpr size_t actions_count = 7;
+    static constexpr size_t max_players_count = 2;
+    using Actions = std::array<bool, actions_count>; // array with active actions
+    using Players = std::array<Actions, max_players_count>; // array of Actions, one for each player
+
+    Players m_players;
+
+    std::array<bool, max_players_count> m_enabled_players { {false} };
+
+    template<class T>
+    inline auto enum_index(T elem) const noexcept
+    {
+        return static_cast<std::underlying_type_t<decltype(elem)>>(elem);
+    }
+
 };
 
 } // end systems
