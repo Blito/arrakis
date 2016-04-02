@@ -14,12 +14,10 @@ PlayerControllerSystem::PlayerControllerSystem(InputSystem & inputSystem) :
 void PlayerControllerSystem::update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt)
 {
     auto up_active = m_inputSystem.isPlayerUsing(InputSystem::Player::ONE, InputSystem::Action::UP);
-//    if (!up_active)
-//    {
-//        return;
-//    }
 
-    entities.each<components::Position>([dt, up_active](entityx::Entity entity, components::Position & position)
+    auto right_active = m_inputSystem.isPlayerUsing(InputSystem::Player::TWO, InputSystem::Action::RIGHT);
+
+    entities.each<components::Position>([dt, up_active, right_active](entityx::Entity entity, components::Position & position)
     {
         if (up_active)
         {
@@ -31,6 +29,11 @@ void PlayerControllerSystem::update(entityx::EntityManager & entities, entityx::
             {
                 position.y--;
             }
+        }
+
+        if (right_active)
+        {
+            position.x++;
         }
     });
 }

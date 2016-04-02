@@ -36,6 +36,9 @@ public:
         TWO = 1
     };
 
+    /**
+     * @brief isPlayerUsing Checks if a player is playing and if he/she's using an Action
+     */
     bool isPlayerUsing(Player player, Action action) const;
 
     bool isPlaying(Player player) const;
@@ -65,7 +68,7 @@ protected:
     using Actions = std::array<bool, actions_count>; // array with active actions
     using Players = std::array<Actions, max_players_count>; // array of Actions, one for each player
 
-    Players m_players;
+    Players m_players { { { { false } } } };
 
     std::array<bool, max_players_count> m_enabled_players { {false} };
 

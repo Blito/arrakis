@@ -10,7 +10,7 @@ using namespace arrakis::systems;
 
 bool InputSystem::isPlayerUsing(Player player, Action action) const
 {
-    return m_players[enum_index(player)][enum_index(action)];
+    return isPlaying(player) && m_players[enum_index(player)][enum_index(action)];
 }
 
 bool InputSystem::isPlaying(Player player) const
@@ -21,7 +21,7 @@ bool InputSystem::isPlaying(Player player) const
 bool InputSystem::isRoomForNewPlayer() const
 {
     return std::any_of(m_enabled_players.begin(), m_enabled_players.end(),
-                       [](bool enabled) { return enabled; });
+                       [](bool enabled) { return !enabled; });
 }
 
 InputSystem::Player InputSystem::createNewPlayer()

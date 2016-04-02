@@ -3,6 +3,7 @@
 #include <components/position.h>
 #include <components/rendering.h>
 
+#include <core/message.h>
 #include <core/server.h>
 
 #include <rapidjson/writer.h>
@@ -36,6 +37,6 @@ void RenderingSystem::update(entityx::EntityManager & entities, entityx::EventMa
         writer.Key("position_x", 10); writer.Int(position.x);
         writer.Key("position_y", 10); writer.Int(position.y);
         writer.EndObject();
-        m_server.sendMessage({core::Server::MessageType::Output, sb.GetString()});
+        m_server.sendMessage({core::MessageType::Output, sb.GetString()});
     });
 }
