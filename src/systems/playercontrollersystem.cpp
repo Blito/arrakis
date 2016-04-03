@@ -13,9 +13,9 @@ PlayerControllerSystem::PlayerControllerSystem(InputSystem & inputSystem) :
 
 void PlayerControllerSystem::update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt)
 {
-    auto up_active = m_inputSystem.isPlayerUsing(InputSystem::Player::ONE, InputSystem::Action::UP);
+    auto up_active = m_inputSystem.isPlayerUsing(core::Player::ONE, InputSystem::Action::UP);
 
-    auto right_active = m_inputSystem.isPlayerUsing(InputSystem::Player::TWO, InputSystem::Action::RIGHT);
+    auto right_active = m_inputSystem.isPlayerUsing(core::Player::TWO, InputSystem::Action::RIGHT);
 
     entities.each<components::Position>([dt, up_active, right_active](entityx::Entity entity, components::Position & position)
     {

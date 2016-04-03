@@ -30,18 +30,12 @@ public:
         B     = 6
     };
 
-    enum class Player : unsigned short
-    {
-        ONE = 0,
-        TWO = 1
-    };
-
     /**
      * @brief isPlayerUsing Checks if a player is playing and if he/she's using an Action
      */
-    bool isPlayerUsing(Player player, Action action) const;
+    bool isPlayerUsing(core::Player player, Action action) const;
 
-    bool isPlaying(Player player) const;
+    bool isPlaying(core::Player player) const;
 
     bool isRoomForNewPlayer() const;
 
@@ -51,7 +45,7 @@ public:
      * @return The new player handle
      * @sa isRoomForNewPlayer()
      */
-    Player createNewPlayer();
+    core::Player createNewPlayer();
 
 protected:
     /**
@@ -61,7 +55,7 @@ protected:
      * the server redirects it to InputSystem, InputSystem updates its status (P
      * key is now pressed).
      */
-    virtual void notify(core::Message msg) override;
+    virtual void notify(core::Message msg, core::Player player) override;
 
     static constexpr size_t actions_count = 7;
     static constexpr size_t max_players_count = 2;

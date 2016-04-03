@@ -8,12 +8,12 @@
 
 using namespace arrakis::systems;
 
-bool InputSystem::isPlayerUsing(Player player, Action action) const
+bool InputSystem::isPlayerUsing(core::Player player, Action action) const
 {
     return isPlaying(player) && m_players[enum_index(player)][enum_index(action)];
 }
 
-bool InputSystem::isPlaying(Player player) const
+bool InputSystem::isPlaying(core::Player player) const
 {
     return m_enabled_players[enum_index(player)];
 }
@@ -24,7 +24,7 @@ bool InputSystem::isRoomForNewPlayer() const
                        [](bool enabled) { return !enabled; });
 }
 
-InputSystem::Player InputSystem::createNewPlayer()
+arrakis::core::Player InputSystem::createNewPlayer()
 {
     // This should be better, I don't like that the user should call isRoomForNewPlayer() first.
     // Wait for std::optional to be a reality
@@ -32,19 +32,19 @@ InputSystem::Player InputSystem::createNewPlayer()
     if (!m_enabled_players[0])
     {
         m_enabled_players[0] = true;
-        return Player::ONE;
+        return core::Player::ONE;
     }
     else
     {
         m_enabled_players[1] = true;
-        return Player::TWO;
+        return core::Player::TWO;
     }
 }
 
-void InputSystem::notify(core::Message msg)
+void InputSystem::notify(core::Message msg, core::Player player)
 {
     using namespace rapidjson;
-    auto change_action_status = [this] (const std::string & action, Player player, bool new_status)
+    auto change_action_status = [this] (const std::string & action, core::Player player, bool new_status)
     {
         if (action == "UP")
         {
@@ -85,10 +85,10 @@ void InputSystem::notify(core::Message msg)
 
     if (document.HasMember("action"))
     {
-        change_action_status(document["action"].GetString(), Player::ONE, true);
+        change_action_status(document["action"].GetString(), player, true);
     }
     else if (document.HasMember("action-stopped"))
     {
-        change_action_status(document["action-stopped"].GetString(), Player::ONE, false);
+        change_action_status(document["action-stopped"].GetString(), player, false);
     }
 }

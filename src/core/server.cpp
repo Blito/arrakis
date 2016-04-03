@@ -63,7 +63,7 @@ void Server::onMessage(client hdl, server::message_ptr msg)
         else if (client_type == "OutputClient")
         {
             std::cout << "New output client." << std::endl;
-            m_output_clients.insert({hdl, systems::InputSystem::Player::ONE});
+            m_output_clients.insert({hdl, core::Player::ONE});
         }
     }
         break;
@@ -75,12 +75,18 @@ void Server::onMessage(client hdl, server::message_ptr msg)
     // If another type of message comes, forward it to interested objects inside our server.
     case MessageType::Input:
     {
-        //TODO: CHECK THAT IT IS AN EXISTING CLIENT
+        // Check that client exists
+        auto client = m_input_clients.find(hdl);
+        if (client == m_input_clients.end())
+        {
+            return;
+        }
+
         auto range = m_listeners.equal_range(parsed_msg.first);
         Message message {parsed_msg.first, msg->get_payload()};
-        std::for_each(range.first, range.second, [message](auto listener)
+        std::for_each(range.first, range.second, [message, &client](auto listener)
         {
-            listener.second.notify(message);
+            listener.second.notify(message, (*client).second);
         });
     }
         break;

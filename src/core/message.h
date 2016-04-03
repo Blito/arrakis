@@ -23,6 +23,12 @@ struct Message
     std::string payload;
 };
 
+enum class Player : unsigned short
+{
+    ONE = 0,
+    TWO = 1
+};
+
 /**
  * @brief The MessageReceiver class is a simple Observer interface.
  * @sa arrakis::core::Server::registerTo(...)
@@ -30,7 +36,7 @@ struct Message
 class MessageReceiver
 {
 public:
-    virtual void notify(Message msg) = 0;
+    virtual void notify(Message msg, Player player) = 0;
 };
 
 } // end core

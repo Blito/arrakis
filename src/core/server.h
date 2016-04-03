@@ -55,7 +55,7 @@ public:
 protected:
     using server = websocketpp::server<websocketpp::config::asio>;
     using client = websocketpp::connection_hdl;
-    using clients = std::map<client, systems::InputSystem::Player, std::owner_less<websocketpp::connection_hdl>>;
+    using clients = std::map<client, core::Player, std::owner_less<websocketpp::connection_hdl>>;
 
     /**
      * We need this to store enum classes as unordered_map keys.
