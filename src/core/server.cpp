@@ -50,18 +50,45 @@ void Server::onMessage(client hdl, server::message_ptr msg)
     case MessageType::NewClient:
     {
         auto client_type = std::string((*parsed_msg.second)["new-client"].GetString());
-        //TODO: CHECK THAT IT IS A NEW CLIENT
+
         if (client_type == "InputClient")
-        {
-            std::cout << "New input client." << std::endl;
+        {            
+            // Check that client does not exist
+            if (m_input_clients.find(hdl) != m_input_clients.end())
+            {
+                return;
+            }
+
             if (m_input_system.isRoomForNewPlayer())
             {
-                auto && player_id = m_input_system.createNewPlayer();
-                m_input_clients.insert({hdl, player_id});
+                auto && player_id = m_input_system.createNewInput();
+                if (player_id != core::Player::NA)
+                {
+                    m_input_clients.insert({hdl, player_id});
+
+                    auto input_listeners = m_listeners.equal_range(MessageType::NewClient);
+                    Message message {parsed_msg.first, msg->get_payload()};
+                    std::for_each(input_listeners.first, input_listeners.second, [message, player_id](auto listener)
+                    {
+                        listener.second.notify(message, player_id);
+                    });
+
+                    std::cout << "New input client." << std::endl;
+                }
+                else
+                {
+                    std::cout << "New input client requested but could not be created. Server full." << std::endl;
+                }
             }
         }
         else if (client_type == "OutputClient")
         {
+            // Check that client does not exist
+            if (m_output_clients.find(hdl) != m_output_clients.end())
+            {
+                return;
+            }
+
             std::cout << "New output client." << std::endl;
             m_output_clients.insert({hdl, core::Player::ONE});
         }
@@ -82,9 +109,9 @@ void Server::onMessage(client hdl, server::message_ptr msg)
             return;
         }
 
-        auto range = m_listeners.equal_range(parsed_msg.first);
+        auto input_listeners = m_listeners.equal_range(MessageType::Input);
         Message message {parsed_msg.first, msg->get_payload()};
-        std::for_each(range.first, range.second, [message, &client](auto listener)
+        std::for_each(input_listeners.first, input_listeners.second, [message, &client](auto listener)
         {
             listener.second.notify(message, (*client).second);
         });

@@ -10,12 +10,12 @@ using namespace arrakis::systems;
 
 bool InputSystem::isPlayerUsing(core::Player player, Action action) const
 {
-    return isPlaying(player) && m_players[enum_index(player)][enum_index(action)];
+    return isPlaying(player) && m_players[core::enum_index(player)][core::enum_index(action)];
 }
 
 bool InputSystem::isPlaying(core::Player player) const
 {
-    return m_enabled_players[enum_index(player)];
+    return m_enabled_players[core::enum_index(player)];
 }
 
 bool InputSystem::isRoomForNewPlayer() const
@@ -24,7 +24,7 @@ bool InputSystem::isRoomForNewPlayer() const
                        [](bool enabled) { return !enabled; });
 }
 
-arrakis::core::Player InputSystem::createNewPlayer()
+arrakis::core::Player InputSystem::createNewInput()
 {
     // This should be better, I don't like that the user should call isRoomForNewPlayer() first.
     // Wait for std::optional to be a reality
@@ -34,16 +34,22 @@ arrakis::core::Player InputSystem::createNewPlayer()
         m_enabled_players[0] = true;
         return core::Player::ONE;
     }
-    else
+    else if (!m_enabled_players[1])
     {
         m_enabled_players[1] = true;
         return core::Player::TWO;
+    }
+    else
+    {
+        return core::Player::NA;
     }
 }
 
 void InputSystem::notify(core::Message msg, core::Player player)
 {
     using namespace rapidjson;
+    using namespace core;
+
     auto change_action_status = [this] (const std::string & action, core::Player player, bool new_status)
     {
         if (action == "UP")

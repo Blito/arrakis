@@ -1,6 +1,7 @@
 #ifndef INPUTSYSTEM_H
 #define INPUTSYSTEM_H
 
+#include <core/constants.h>
 #include <core/message.h>
 #include <array>
 
@@ -45,7 +46,7 @@ public:
      * @return The new player handle
      * @sa isRoomForNewPlayer()
      */
-    core::Player createNewPlayer();
+    core::Player createNewInput();
 
 protected:
     /**
@@ -58,19 +59,12 @@ protected:
     virtual void notify(core::Message msg, core::Player player) override;
 
     static constexpr size_t actions_count = 7;
-    static constexpr size_t max_players_count = 2;
-    using Actions = std::array<bool, actions_count>; // array with active actions
-    using Players = std::array<Actions, max_players_count>; // array of Actions, one for each player
+    using Actions = std::array<bool, actions_count>; //< array with active actions
+    using Players = std::array<Actions, core::max_players_count>; //< array of Actions, one for each player
 
-    Players m_players { { { { false } } } };
+    Players m_players { { { { false } } } }; //< all players with their actions set as not-active
 
-    std::array<bool, max_players_count> m_enabled_players { {false} };
-
-    template<class T>
-    inline auto enum_index(T elem) const noexcept
-    {
-        return static_cast<std::underlying_type_t<decltype(elem)>>(elem);
-    }
+    std::array<bool, core::max_players_count> m_enabled_players { {false} };
 
 };
 

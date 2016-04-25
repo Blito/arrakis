@@ -26,8 +26,18 @@ struct Message
 enum class Player : unsigned short
 {
     ONE = 0,
-    TWO = 1
+    TWO = 1,
+    NA = 2 // used as a flag for non-valid operations
 };
+
+/**
+ * Example: enum_index(Player::ONE) == 0
+ */
+template<class T>
+inline auto enum_index(T elem) noexcept
+{
+    return static_cast<std::underlying_type_t<decltype(elem)>>(elem);
+}
 
 /**
  * @brief The MessageReceiver class is a simple Observer interface.

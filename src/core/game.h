@@ -7,6 +7,7 @@
 #include <entityx/System.h>
 
 #include <core/server.h>
+#include <core/message.h>
 #include <systems/inputsystem.h>
 
 namespace arrakis
@@ -15,7 +16,7 @@ namespace arrakis
 namespace core
 {
 
-class Game
+class Game : public MessageReceiver
 {
 public:
     Game(int server_port);
@@ -23,13 +24,13 @@ public:
     void run();
 
 protected:
+    void notify(Message msg, Player player) override;z
+
     entityx::EntityManager m_entityManager;
 
     entityx::EventManager m_eventManager;
 
     entityx::SystemManager m_systemsManager;
-
-    entityx::Entity m_player;
 
     Server m_server;
 

@@ -22,21 +22,35 @@ void RenderingSystem::update(entityx::EntityManager & entities, entityx::EventMa
     using namespace arrakis::components;
     using namespace rapidjson;
 
-    StringBuffer sb;
-    Writer<StringBuffer> writer(sb);
+    Document frame;
+    frame.SetObject();
 
-    entities.each<Position, Rendering>([dt, &writer, &sb, this](entityx::Entity entity, Position & position, Rendering & rendering)
+    // Create array with objects with a Rendering component
+    Value objects_array(kArrayType);
+    auto& allocator = frame.GetAllocator();
+    entities.each<Position, Rendering>([dt, &objects_array, &allocator, this](entityx::Entity entity, Position & position, Rendering & rendering)
     {
         if (!rendering.enabled)
         {
             return;
         }
 
-        writer.StartObject();
-        writer.Key("id", 2); writer.String(std::to_string(entity.id().id()).c_str());
-        writer.Key("position_x", 10); writer.Int(position.x);
-        writer.Key("position_y", 10); writer.Int(position.y);
-        writer.EndObject();
-        m_server.sendMessage({core::MessageType::Output, sb.GetString()});
+        Value object; // [id, x, y]
+        object.SetObject();
+        object.AddMember("id", entity.id().id(), allocator);
+        object.AddMember("x", position.x, allocator);
+        object.AddMember("y", position.y, allocator);
+
+        objects_array.PushBack(object, allocator);
     });
+
+    // Add array to output JSON
+    frame.AddMember("to_render", objects_array, allocator);
+
+    StringBuffer sb;
+    Writer<StringBuffer> writer(sb);
+    frame.Accept(writer);
+
+    // Send JSON to output clients
+    m_server.sendMessage({core::MessageType::Output, sb.GetString()});
 }
