@@ -68,7 +68,7 @@ void InputSystem::notify(core::Message msg, core::Player player)
         {
             m_players[enum_index(player)][enum_index(Action::RIGHT)] = new_status;
         }
-        else if (action == "SPACE")
+        else if (action == "JUMP")
         {
             m_players[enum_index(player)][enum_index(Action::JUMP)] = new_status;
         }

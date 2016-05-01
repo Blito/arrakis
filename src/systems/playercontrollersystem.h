@@ -23,6 +23,9 @@ public:
     void update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt) override;
 
 protected:
+    static constexpr float jump_acceleration = 800.0f;
+    static constexpr float lateral_acceleration = 70.0f;
+
     InputSystem & m_inputSystem; //< who should we ask for input
 };
 

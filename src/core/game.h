@@ -24,7 +24,7 @@ public:
     void run();
 
 protected:
-    void notify(Message msg, Player player) override;z
+    void notify(Message msg, Player player) override;
 
     entityx::EntityManager m_entityManager;
 

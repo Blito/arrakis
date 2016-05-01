@@ -4,10 +4,12 @@
 
 #include <core/constants.h>
 #include <core/message.h>
+#include <components/physics.h>
+#include <components/playercontrolled.h>
 #include <components/position.h>
 #include <components/rendering.h>
-#include <components/playercontrolled.h>
 #include <systems/inputsystem.h>
+#include <systems/physicssystem.h>
 #include <systems/playercontrollersystem.h>
 #include <systems/renderingsystem.h>
 
@@ -19,6 +21,7 @@ Game::Game(int server_port) :
     m_server(m_input, server_port)
 {
     m_systemsManager.add<systems::PlayerControllerSystem>(m_input);
+    m_systemsManager.add<systems::PhysicsSystem>();
     m_systemsManager.add<systems::RenderingSystem>(m_server);
     m_systemsManager.configure();
 
@@ -43,9 +46,10 @@ void Game::run()
     {
         using namespace std::literals::chrono_literals;
 
-        m_systemsManager.update<systems::PlayerControllerSystem>(10.0f);
-        m_systemsManager.update<systems::RenderingSystem>(10.0f);
-        std::this_thread::sleep_for(100ms);
+        m_systemsManager.update<systems::PlayerControllerSystem>(50.0f);
+        m_systemsManager.update<systems::PhysicsSystem>(50.0f);
+        m_systemsManager.update<systems::RenderingSystem>(50.0f);
+        std::this_thread::sleep_for(50ms);
     }
 }
 
@@ -53,7 +57,8 @@ void Game::notify(Message msg, Player player)
 {
     auto new_entity = m_entityManager.create();
 
-    new_entity.assign<components::Position>(10, 100);
+    new_entity.assign<components::Position>(10, 5);
+    new_entity.assign<components::Physics>(5.0f, true, utils::vec2f{1.1f, 1.5f}, utils::vec2f{400.0f, 700.0f});
     new_entity.assign<components::Rendering>(true);
     new_entity.assign<components::PlayerControlled>(player);
 }

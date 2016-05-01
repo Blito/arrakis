@@ -1,7 +1,7 @@
 #include "playercontrollersystem.h"
 
 #include <components/playercontrolled.h>
-#include <components/position.h>
+#include <components/physics.h>
 #include <systems/inputsystem.h>
 
 using namespace arrakis::systems;
@@ -16,26 +16,28 @@ void PlayerControllerSystem::update(entityx::EntityManager & entities, entityx::
 {
     using namespace arrakis::components;
 
-    entities.each<PlayerControlled, Position>([this, dt](entityx::Entity entity, PlayerControlled & actor, Position & position)
+    entities.each<PlayerControlled, Physics>([this, dt](entityx::Entity entity, PlayerControlled & actor, Physics & physics)
     {
-        auto up_active = m_inputSystem.isPlayerUsing(actor.controlled_by, InputSystem::Action::UP);
-        auto right_active = m_inputSystem.isPlayerUsing(actor.controlled_by, InputSystem::Action::RIGHT);
+        auto jump = m_inputSystem.isPlayerUsing(actor.controlled_by, InputSystem::Action::JUMP);
+        auto right = m_inputSystem.isPlayerUsing(actor.controlled_by, InputSystem::Action::RIGHT);
+        auto left = m_inputSystem.isPlayerUsing(actor.controlled_by, InputSystem::Action::LEFT);
 
-        if (up_active)
+        if (jump && physics.velocity.y == 0.0f)
         {
-            position.y++;
+            physics.acceleration.y = jump_acceleration;
         }
         else
         {
-            if (position.y > 0)
-            {
-                position.y--;
-            }
+            physics.acceleration.y = 0.0f;
         }
 
-        if (right_active)
+        if (right != left)
         {
-            position.x++;
+            physics.acceleration.x = right ? lateral_acceleration : -lateral_acceleration;
+        }
+        else
+        {
+            physics.acceleration.x = 0.0f;
         }
     });
 }
