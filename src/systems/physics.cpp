@@ -1,15 +1,15 @@
-#include "physicssystem.h"
+#include "physics.h"
 
 #include <components/position.h>
 #include <components/physics.h>
 
 using namespace arrakis::systems;
 
-void PhysicsSystem::update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt)
+void Physics::update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt)
 {
     using namespace arrakis::components;
 
-    entities.each<Position, Physics>([this, dt](entityx::Entity entity, Position & position, Physics & physics)
+    entities.each<Position, components::Physics>([this, dt](entityx::Entity entity, Position & position, components::Physics & physics)
     {
         float _dt = dt / 1000.0f;
 
@@ -35,11 +35,11 @@ void PhysicsSystem::update(entityx::EntityManager & entities, entityx::EventMana
     });
 }
 
-void PhysicsSystem::updateAcceleration(components::Physics & physics, entityx::TimeDelta dt)
+void Physics::updateAcceleration(components::Physics & physics, entityx::TimeDelta dt)
 {
 }
 
-void PhysicsSystem::updateVelocity(components::Physics & physics, entityx::TimeDelta dt)
+void Physics::updateVelocity(components::Physics & physics, float dt)
 {
     auto keep_in_bounds = [](float & magnitude, float abs_bound)
     {
@@ -70,7 +70,7 @@ void PhysicsSystem::updateVelocity(components::Physics & physics, entityx::TimeD
     }
 }
 
-void PhysicsSystem::keep_in_world_bounds(float & x, float & y, bool & collided)
+void Physics::keep_in_world_bounds(float & x, float & y, bool & collided)
 {
     collided = false;
     if (x < world_bounds_x.min)
@@ -94,7 +94,7 @@ void PhysicsSystem::keep_in_world_bounds(float & x, float & y, bool & collided)
     }
 }
 
-void PhysicsSystem::round_to_static(float & magnitude, float threshold)
+void Physics::round_to_static(float & magnitude, float threshold)
 {
     if (std::abs(magnitude) < threshold)
     {

@@ -6,9 +6,9 @@
 #include <entityx/Entity.h>
 #include <entityx/System.h>
 
-#include <core/server.h>
 #include <core/message.h>
-#include <systems/inputsystem.h>
+#include <systems/input.h>
+#include <systems/networking.h>
 
 namespace arrakis
 {
@@ -32,9 +32,9 @@ protected:
 
     entityx::SystemManager m_systemsManager;
 
-    Server m_server;
+    systems::Networking m_server;
 
-    systems::InputSystem m_input;
+    systems::Input m_input;
 
     std::thread m_serverThread;
 };

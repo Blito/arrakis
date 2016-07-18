@@ -9,16 +9,16 @@ namespace arrakis
 namespace systems
 {
 
-class InputSystem;
+class Input;
 
 /**
  * @brief The PlayerControllerSystem transforms input registered in the InputSystem
  * to actions applied to Components owned by the player.
  */
-class PlayerControllerSystem : public entityx::System<PlayerControllerSystem>
+class PlayerController : public entityx::System<PlayerController>
 {
 public:
-    PlayerControllerSystem(InputSystem & inputSystem);
+    PlayerController(Input & inputSystem);
 
     void update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt) override;
 
@@ -26,7 +26,7 @@ protected:
     static constexpr float jump_acceleration = 800.0f;
     static constexpr float lateral_acceleration = 70.0f;
 
-    InputSystem & m_inputSystem; //< who should we ask for input
+    Input & m_inputSystem; //< who should we ask for input
 };
 
 } // end systems

@@ -1,23 +1,23 @@
-#include "renderingsystem.h"
+#include "rendering.h"
 
 #include <components/position.h>
 #include <components/rendering.h>
 
 #include <core/message.h>
-#include <core/server.h>
+#include <systems/networking.h>
 
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
 using namespace arrakis::systems;
 
-RenderingSystem::RenderingSystem(arrakis::core::Server & server) :
+Rendering::Rendering(Networking & server) :
     m_server(server)
 {
 
 }
 
-void RenderingSystem::update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt)
+void Rendering::update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt)
 {
     using namespace arrakis::components;
     using namespace rapidjson;
@@ -28,7 +28,7 @@ void RenderingSystem::update(entityx::EntityManager & entities, entityx::EventMa
     // Create array with objects with a Rendering component
     Value objects_array(kArrayType);
     auto& allocator = frame.GetAllocator();
-    entities.each<Position, Rendering>([dt, &objects_array, &allocator, this](entityx::Entity entity, Position & position, Rendering & rendering)
+    entities.each<Position, components::Rendering>([dt, &objects_array, &allocator, this](entityx::Entity entity, Position & position, components::Rendering & rendering)
     {
         if (!rendering.enabled)
         {

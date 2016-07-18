@@ -1,26 +1,26 @@
-#include "playercontrollersystem.h"
+#include "playercontroller.h"
 
 #include <components/playercontrolled.h>
 #include <components/physics.h>
-#include <systems/inputsystem.h>
+#include <systems/input.h>
 
 using namespace arrakis::systems;
 
-PlayerControllerSystem::PlayerControllerSystem(InputSystem & inputSystem) :
+PlayerController::PlayerController(Input & inputSystem) :
     m_inputSystem(inputSystem)
 {
 
 }
 
-void PlayerControllerSystem::update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt)
+void PlayerController::update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt)
 {
     using namespace arrakis::components;
 
     entities.each<PlayerControlled, Physics>([this, dt](entityx::Entity entity, PlayerControlled & actor, Physics & physics)
     {
-        auto jump = m_inputSystem.isPlayerUsing(actor.controlled_by, InputSystem::Action::JUMP);
-        auto right = m_inputSystem.isPlayerUsing(actor.controlled_by, InputSystem::Action::RIGHT);
-        auto left = m_inputSystem.isPlayerUsing(actor.controlled_by, InputSystem::Action::LEFT);
+        auto jump = m_inputSystem.isPlayerUsing(actor.controlled_by, Input::Action::JUMP);
+        auto right = m_inputSystem.isPlayerUsing(actor.controlled_by, Input::Action::RIGHT);
+        auto left = m_inputSystem.isPlayerUsing(actor.controlled_by, Input::Action::LEFT);
 
         if (jump && physics.velocity.y == 0.0f)
         {

@@ -1,4 +1,4 @@
-#include "inputsystem.h"
+#include "input.h"
 
 #include <rapidjson/document.h>
 
@@ -8,23 +8,23 @@
 
 using namespace arrakis::systems;
 
-bool InputSystem::isPlayerUsing(core::Player player, Action action) const
+bool Input::isPlayerUsing(core::Player player, Action action) const
 {
     return isPlaying(player) && m_players[core::enum_index(player)][core::enum_index(action)];
 }
 
-bool InputSystem::isPlaying(core::Player player) const
+bool Input::isPlaying(core::Player player) const
 {
     return m_enabled_players[core::enum_index(player)];
 }
 
-bool InputSystem::isRoomForNewPlayer() const
+bool Input::isRoomForNewPlayer() const
 {
     return std::any_of(m_enabled_players.begin(), m_enabled_players.end(),
                        [](bool enabled) { return !enabled; });
 }
 
-arrakis::core::Player InputSystem::createNewInput()
+arrakis::core::Player Input::createNewInput()
 {
     // This should be better, I don't like that the user should call isRoomForNewPlayer() first.
     // Wait for std::optional to be a reality
@@ -45,7 +45,7 @@ arrakis::core::Player InputSystem::createNewInput()
     }
 }
 
-void InputSystem::notify(core::Message msg, core::Player player)
+void Input::notify(core::Message msg, core::Player player)
 {
     using namespace rapidjson;
     using namespace core;

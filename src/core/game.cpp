@@ -8,10 +8,10 @@
 #include <components/playercontrolled.h>
 #include <components/position.h>
 #include <components/rendering.h>
-#include <systems/inputsystem.h>
-#include <systems/physicssystem.h>
-#include <systems/playercontrollersystem.h>
-#include <systems/renderingsystem.h>
+#include <systems/input.h>
+#include <systems/physics.h>
+#include <systems/playercontroller.h>
+#include <systems/rendering.h>
 
 using namespace arrakis::core;
 
@@ -20,9 +20,9 @@ Game::Game(int server_port) :
     m_systemsManager(m_entityManager, m_eventManager),
     m_server(m_input, server_port)
 {
-    m_systemsManager.add<systems::PlayerControllerSystem>(m_input);
-    m_systemsManager.add<systems::PhysicsSystem>();
-    m_systemsManager.add<systems::RenderingSystem>(m_server);
+    m_systemsManager.add<systems::PlayerController>(m_input);
+    m_systemsManager.add<systems::Physics>();
+    m_systemsManager.add<systems::Rendering>(m_server);
     m_systemsManager.configure();
 
     try
@@ -46,9 +46,9 @@ void Game::run()
     {
         using namespace std::literals::chrono_literals;
 
-        m_systemsManager.update<systems::PlayerControllerSystem>(50.0f);
-        m_systemsManager.update<systems::PhysicsSystem>(50.0f);
-        m_systemsManager.update<systems::RenderingSystem>(50.0f);
+        m_systemsManager.update<systems::PlayerController>(50.0f);
+        m_systemsManager.update<systems::Physics>(50.0f);
+        m_systemsManager.update<systems::Rendering>(50.0f);
         std::this_thread::sleep_for(50ms);
     }
 }

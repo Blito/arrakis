@@ -1,10 +1,10 @@
-#include "server.h"
+#include "networking.h"
 
 #include <algorithm>
 
-using namespace arrakis::core;
+using namespace arrakis::systems;
 
-Server::Server(systems::InputSystem & input_system, int port) :
+Networking::Networking(systems::Input & input_system, int port) :
     m_input_system(input_system)
 {
     auto message_handler = [this] (auto hdl, auto msg) { onMessage(hdl, msg); };
@@ -16,14 +16,14 @@ Server::Server(systems::InputSystem & input_system, int port) :
     m_server.start_accept();
 }
 
-void Server::run()
+void Networking::run()
 {
     m_server.run();
 }
 
-void Server::sendMessage(const Message & msg)
+void Networking::sendMessage(const core::Message & msg)
 {
-    if (msg.type != MessageType::Output)
+    if (msg.type != core::MessageType::Output)
         return;
 
     for (auto client : m_output_clients)
@@ -35,19 +35,19 @@ void Server::sendMessage(const Message & msg)
     }
 }
 
-void Server::registerTo(MessageType msgType, MessageReceiver & receiver)
+void Networking::registerTo(core::MessageType msgType, core::MessageReceiver & receiver)
 {
     m_listeners.insert({ msgType, receiver });
 }
 
-void Server::onMessage(client hdl, server::message_ptr msg)
+void Networking::onMessage(client hdl, server::message_ptr msg)
 {
     auto parsed_msg = parseMessage(msg);
 
     switch (parsed_msg.first)
     {
     // If a new message asks for a new client, add it to client lists.
-    case MessageType::NewClient:
+    case core::MessageType::NewClient:
     {
         auto client_type = std::string((*parsed_msg.second)["new-client"].GetString());
 
@@ -66,8 +66,8 @@ void Server::onMessage(client hdl, server::message_ptr msg)
                 {
                     m_input_clients.insert({hdl, player_id});
 
-                    auto input_listeners = m_listeners.equal_range(MessageType::NewClient);
-                    Message message {parsed_msg.first, msg->get_payload()};
+                    auto input_listeners = m_listeners.equal_range(core::MessageType::NewClient);
+                    core::Message message {parsed_msg.first, msg->get_payload()};
                     std::for_each(input_listeners.first, input_listeners.second, [message, player_id](auto listener)
                     {
                         listener.second.notify(message, player_id);
@@ -96,11 +96,11 @@ void Server::onMessage(client hdl, server::message_ptr msg)
         break;
 
     // If incoming message could not be classified.
-    case MessageType::ParseError:
+    case core::MessageType::ParseError:
         break;
 
     // If another type of message comes, forward it to interested objects inside our server.
-    case MessageType::Input:
+    case core::MessageType::Input:
     {
         // Check that client exists
         auto client = m_input_clients.find(hdl);
@@ -109,8 +109,8 @@ void Server::onMessage(client hdl, server::message_ptr msg)
             return;
         }
 
-        auto input_listeners = m_listeners.equal_range(MessageType::Input);
-        Message message {parsed_msg.first, msg->get_payload()};
+        auto input_listeners = m_listeners.equal_range(core::MessageType::Input);
+        core::Message message {parsed_msg.first, msg->get_payload()};
         std::for_each(input_listeners.first, input_listeners.second, [message, &client](auto listener)
         {
             listener.second.notify(message, (*client).second);
@@ -130,18 +130,18 @@ void Server::onMessage(client hdl, server::message_ptr msg)
  * Input type messages:
  * {action[-stopped]:[UP|DOWN|LEFT|RIGHT|JUMP|A|B]}
  */
-std::pair<MessageType, std::unique_ptr<rapidjson::Document>> Server::parseMessage(const server::message_ptr & msg)
+std::pair<arrakis::core::MessageType, std::unique_ptr<rapidjson::Document>> Networking::parseMessage(const server::message_ptr & msg)
 {
     auto document = std::make_unique<rapidjson::Document>();
 
     if (document->Parse(msg->get_payload().c_str()).HasParseError())
-        return { MessageType::ParseError, std::move(document) };
+        return { core::MessageType::ParseError, std::move(document) };
 
     if (document->HasMember("action") || document->HasMember("action-stopped"))
-        return { MessageType::Input, std::move(document) };
+        return { core::MessageType::Input, std::move(document) };
 
     if (document->HasMember("new-client"))
-        return { MessageType::NewClient, std::move(document) };
+        return { core::MessageType::NewClient, std::move(document) };
 
-    return { MessageType::ParseError, std::move(document) };
+    return { core::MessageType::ParseError, std::move(document) };
 }

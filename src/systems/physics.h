@@ -17,7 +17,7 @@ namespace systems
  * @brief The PhysicsSystem updates entities' position in the world using a
  * basic homemade physics system.
  */
-class PhysicsSystem : public entityx::System<PhysicsSystem>
+class Physics : public entityx::System<Physics>
 {
 public:
     void update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt) override;
@@ -27,7 +27,7 @@ protected:
     void updateAcceleration(components::Physics & physics, entityx::TimeDelta dt);
 
     // Updates velocity using updated acceleration
-    void updateVelocity(components::Physics & physics, entityx::TimeDelta dt);
+    void updateVelocity(components::Physics & physics, float dt);
 
     // Keeps x and y between world_bounds_x and world_bounds_y
     void keep_in_world_bounds(float & x, float & y, bool &collided);

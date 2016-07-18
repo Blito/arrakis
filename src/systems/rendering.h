@@ -6,23 +6,20 @@
 namespace arrakis
 {
 
-namespace core // forward declarations
-{
-    class Server;
-}
-
 namespace systems
 {
 
-class RenderingSystem : public entityx::System<RenderingSystem>
+class Networking;
+
+class Rendering : public entityx::System<Rendering>
 {
 public:
-    RenderingSystem(core::Server & server);
+    Rendering(Networking & server);
 
     void update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt) override;
 
 protected:
-    core::Server & m_server;
+    Networking & m_server;
 };
 
 } // end systems

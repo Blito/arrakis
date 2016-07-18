@@ -17,7 +17,7 @@ namespace systems
  * The InputSystem interprets events coming from a core::Server through InputSystem::notify,
  * and updates its internal state.
  */
-class InputSystem : public core::MessageReceiver
+class Input : public core::MessageReceiver
 {
 public:
     enum class Action : unsigned short
