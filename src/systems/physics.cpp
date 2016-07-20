@@ -13,7 +13,7 @@ void Physics::update(entityx::EntityManager & entities, entityx::EventManager & 
     {
         float _dt = dt / 1000.0f;
 
-        updateVelocity(physics, _dt);
+        update_velocity(physics, _dt);
 
         // update position
         position.x += physics.velocity.x * _dt;
@@ -35,11 +35,11 @@ void Physics::update(entityx::EntityManager & entities, entityx::EventManager & 
     });
 }
 
-void Physics::updateAcceleration(components::Physics & physics, entityx::TimeDelta dt)
+void Physics::update_acceleration(components::Physics & physics, entityx::TimeDelta dt)
 {
 }
 
-void Physics::updateVelocity(components::Physics & physics, float dt)
+void Physics::update_velocity(components::Physics & physics, float dt)
 {
     auto keep_in_bounds = [](float & magnitude, float abs_bound)
     {

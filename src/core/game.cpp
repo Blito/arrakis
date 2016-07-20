@@ -27,9 +27,9 @@ Game::Game(int server_port) :
 
     try
     {
-        m_server.registerTo(MessageType::Input, m_input);
-        m_server.registerTo(MessageType::NewClient, *this);
-        m_serverThread = std::thread([this] { m_server.run(); });
+        m_server.register_to(MessageType::Input, m_input);
+        m_server.register_to(MessageType::NewClient, *this);
+        m_serverThread = std::thread([this] { m_server.start_server(); });
         std::cout << "Server started in port " << server_port << std::endl;
     }
     catch (std::exception ex)

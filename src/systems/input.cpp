@@ -5,29 +5,30 @@
 #include <type_traits>
 #include <algorithm>
 #include <iostream>
+#include <assert.h>
 
 using namespace arrakis::systems;
 
-bool Input::isPlayerUsing(core::Player player, Action action) const
+bool Input::is_player_doing(core::Player player, Action action) const
 {
-    return isPlaying(player) && m_players[core::enum_index(player)][core::enum_index(action)];
+    return is_playing(player) && m_players[core::enum_index(player)][core::enum_index(action)];
 }
 
-bool Input::isPlaying(core::Player player) const
+bool Input::is_playing(core::Player player) const
 {
     return m_enabled_players[core::enum_index(player)];
 }
 
-bool Input::isRoomForNewPlayer() const
+bool Input::is_room_for_new_player() const
 {
     return std::any_of(m_enabled_players.begin(), m_enabled_players.end(),
                        [](bool enabled) { return !enabled; });
 }
 
-arrakis::core::Player Input::createNewInput()
+arrakis::core::Player Input::create_new_player()
 {
-    // This should be better, I don't like that the user should call isRoomForNewPlayer() first.
-    // Wait for std::optional to be a reality
+    // TODO: Class interface is not idiot-proof!
+    assert(is_room_for_new_player());
 
     if (!m_enabled_players[0])
     {

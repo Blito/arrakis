@@ -7,7 +7,7 @@
 using namespace arrakis::systems;
 
 PlayerController::PlayerController(Input & inputSystem) :
-    m_inputSystem(inputSystem)
+    input_system(inputSystem)
 {
 
 }
@@ -18,9 +18,9 @@ void PlayerController::update(entityx::EntityManager & entities, entityx::EventM
 
     entities.each<PlayerControlled, Physics>([this, dt](entityx::Entity entity, PlayerControlled & actor, Physics & physics)
     {
-        auto jump = m_inputSystem.isPlayerUsing(actor.controlled_by, Input::Action::JUMP);
-        auto right = m_inputSystem.isPlayerUsing(actor.controlled_by, Input::Action::RIGHT);
-        auto left = m_inputSystem.isPlayerUsing(actor.controlled_by, Input::Action::LEFT);
+        auto jump = input_system.is_player_doing(actor.controlled_by, Input::Action::JUMP);
+        auto right = input_system.is_player_doing(actor.controlled_by, Input::Action::RIGHT);
+        auto left = input_system.is_player_doing(actor.controlled_by, Input::Action::LEFT);
 
         if (jump && physics.velocity.y == 0.0f)
         {

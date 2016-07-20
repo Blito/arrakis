@@ -11,8 +11,8 @@
 
 using namespace arrakis::systems;
 
-Rendering::Rendering(Networking & server) :
-    m_server(server)
+Rendering::Rendering(Networking & networking_system) :
+    networking_system(networking_system)
 {
 
 }
@@ -52,5 +52,5 @@ void Rendering::update(entityx::EntityManager & entities, entityx::EventManager 
     frame.Accept(writer);
 
     // Send JSON to output clients
-    m_server.sendMessage({core::MessageType::Output, sb.GetString()});
+    networking_system.send_message({core::MessageType::Output, sb.GetString()});
 }

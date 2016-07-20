@@ -11,12 +11,11 @@ namespace arrakis
 namespace systems
 {
 
-/**
- * @brief The InputSystem is the source for input events and input state.
- *
- * The InputSystem interprets events coming from a core::Server through InputSystem::notify,
- * and updates its internal state.
- */
+// The Input system is the source for input events and input state.
+//
+// Inputs come from the Networking system mostly and are tied to a
+// particular Player (or input client, which should be the same).
+
 class Input : public core::MessageReceiver
 {
 public:
@@ -31,31 +30,17 @@ public:
         B     = 6
     };
 
-    /**
-     * @brief isPlayerUsing Checks if a player is playing and if he/she's using an Action
-     */
-    bool isPlayerUsing(core::Player player, Action action) const;
+    bool is_player_doing(core::Player player, Action action) const;
 
-    bool isPlaying(core::Player player) const;
+    bool is_playing(core::Player player) const;
 
-    bool isRoomForNewPlayer() const;
+    bool is_room_for_new_player() const;
 
-    /**
-     * @brief createNewPlayer Creates a new player.
-     * IMPORTANT: does not check if this is possible, use isRoomForNewPlayer() first.
-     * @return The new player handle
-     * @sa isRoomForNewPlayer()
-     */
-    core::Player createNewInput();
+    // IMPORTANT: Check if there is_room_for_new_player() first.
+    core::Player create_new_player();
 
 protected:
-    /**
-     * @brief notify Gets notified of Input events coming from the core::Server.
-     *
-     * @example User presses a key in browser, sends JSON { key:P } to the server,
-     * the server redirects it to InputSystem, InputSystem updates its status (P
-     * key is now pressed).
-     */
+    // inherited from MessageReceiver
     virtual void notify(core::Message msg, core::Player player) override;
 
     static constexpr size_t actions_count = 7;

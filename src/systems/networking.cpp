@@ -5,42 +5,41 @@
 using namespace arrakis::systems;
 
 Networking::Networking(systems::Input & input_system, int port) :
-    m_input_system(input_system)
+    input_system(input_system)
 {
-    auto message_handler = [this] (auto hdl, auto msg) { onMessage(hdl, msg); };
+    auto message_handler = [this] (auto hdl, auto msg) { on_message(hdl, msg); };
 
-    m_server.set_message_handler(message_handler);
+    server.set_message_handler(message_handler);
 
-    m_server.init_asio();
-    m_server.listen(port);
-    m_server.start_accept();
+    server.init_asio();
+    server.listen(port);
+    server.start_accept();
 }
 
-void Networking::run()
+void Networking::start_server()
 {
-    m_server.run();
+    server.run();
 }
 
-void Networking::sendMessage(const core::Message & msg)
+void Networking::send_message(const core::Message & msg)
 {
-    if (msg.type != core::MessageType::Output)
-        return;
+    assert(msg.type == core::MessageType::Output);
 
-    for (auto client : m_output_clients)
+    for (auto client : output_clients)
     {
         if (!client.first.expired())
         {
-            m_server.send(client.first, msg.payload, websocketpp::frame::opcode::TEXT);
+            server.send(client.first, msg.payload, websocketpp::frame::opcode::TEXT);
         }
     }
 }
 
-void Networking::registerTo(core::MessageType msgType, core::MessageReceiver & receiver)
+void Networking::register_to(core::MessageType msgType, core::MessageReceiver & receiver)
 {
-    m_listeners.insert({ msgType, receiver });
+    listeners.insert({ msgType, receiver });
 }
 
-void Networking::onMessage(client hdl, server::message_ptr msg)
+void Networking::on_message(client hdl, ws_server::message_ptr msg)
 {
     auto parsed_msg = parseMessage(msg);
 
@@ -54,43 +53,40 @@ void Networking::onMessage(client hdl, server::message_ptr msg)
         if (client_type == "InputClient")
         {            
             // Check that client does not exist
-            if (m_input_clients.find(hdl) != m_input_clients.end())
+            if (input_clients.find(hdl) != input_clients.end())
             {
                 return;
             }
 
-            if (m_input_system.isRoomForNewPlayer())
+            if (input_system.is_room_for_new_player())
             {
-                auto && player_id = m_input_system.createNewInput();
-                if (player_id != core::Player::NA)
-                {
-                    m_input_clients.insert({hdl, player_id});
+                auto && player_id = input_system.create_new_player();
+                input_clients.insert({hdl, player_id});
 
-                    auto input_listeners = m_listeners.equal_range(core::MessageType::NewClient);
-                    core::Message message {parsed_msg.first, msg->get_payload()};
-                    std::for_each(input_listeners.first, input_listeners.second, [message, player_id](auto listener)
-                    {
-                        listener.second.notify(message, player_id);
-                    });
-
-                    std::cout << "New input client." << std::endl;
-                }
-                else
+                auto input_listeners = listeners.equal_range(core::MessageType::NewClient);
+                core::Message message {parsed_msg.first, msg->get_payload()};
+                std::for_each(input_listeners.first, input_listeners.second, [message, player_id](auto listener)
                 {
-                    std::cout << "New input client requested but could not be created. Server full." << std::endl;
-                }
+                    listener.second.notify(message, player_id);
+                });
+
+                std::cout << "New input client." << std::endl;
+            }
+            else
+            {
+                std::cout << "New input client requested but could not be created. Server full." << std::endl;
             }
         }
         else if (client_type == "OutputClient")
         {
             // Check that client does not exist
-            if (m_output_clients.find(hdl) != m_output_clients.end())
+            if (output_clients.find(hdl) != output_clients.end())
             {
                 return;
             }
 
             std::cout << "New output client." << std::endl;
-            m_output_clients.insert({hdl, core::Player::ONE});
+            output_clients.insert({hdl, core::Player::ONE});
         }
     }
         break;
@@ -103,13 +99,13 @@ void Networking::onMessage(client hdl, server::message_ptr msg)
     case core::MessageType::Input:
     {
         // Check that client exists
-        auto client = m_input_clients.find(hdl);
-        if (client == m_input_clients.end())
+        auto client = input_clients.find(hdl);
+        if (client == input_clients.end())
         {
             return;
         }
 
-        auto input_listeners = m_listeners.equal_range(core::MessageType::Input);
+        auto input_listeners = listeners.equal_range(core::MessageType::Input);
         core::Message message {parsed_msg.first, msg->get_payload()};
         std::for_each(input_listeners.first, input_listeners.second, [message, &client](auto listener)
         {
@@ -130,7 +126,7 @@ void Networking::onMessage(client hdl, server::message_ptr msg)
  * Input type messages:
  * {action[-stopped]:[UP|DOWN|LEFT|RIGHT|JUMP|A|B]}
  */
-std::pair<arrakis::core::MessageType, std::unique_ptr<rapidjson::Document>> Networking::parseMessage(const server::message_ptr & msg)
+std::pair<arrakis::core::MessageType, std::unique_ptr<rapidjson::Document>> Networking::parseMessage(const ws_server::message_ptr & msg)
 {
     auto document = std::make_unique<rapidjson::Document>();
 

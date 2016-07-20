@@ -13,10 +13,8 @@ namespace arrakis
 namespace systems
 {
 
-/**
- * @brief The PhysicsSystem updates entities' position in the world using a
- * basic homemade physics system.
- */
+// The Physics system updates entities' position in the world using a
+// basic homemade physics system.
 class Physics : public entityx::System<Physics>
 {
 public:
@@ -24,10 +22,10 @@ public:
 
 protected:
     // Adds friction based on the current acceleration
-    void updateAcceleration(components::Physics & physics, entityx::TimeDelta dt);
+    void update_acceleration(components::Physics & physics, entityx::TimeDelta dt);
 
     // Updates velocity using updated acceleration
-    void updateVelocity(components::Physics & physics, float dt);
+    void update_velocity(components::Physics & physics, float dt);
 
     // Keeps x and y between world_bounds_x and world_bounds_y
     void keep_in_world_bounds(float & x, float & y, bool &collided);
