@@ -23,12 +23,7 @@ struct Message
     std::string payload;
 };
 
-enum class Player : unsigned short
-{
-    ONE = 0,
-    TWO = 1,
-    NA = 2 // used as a flag for non-valid operations
-};
+typedef unsigned short Player;
 
 // Example: enum_index(Player::ONE) == 0
 template<class T>

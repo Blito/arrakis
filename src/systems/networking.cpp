@@ -11,14 +11,27 @@ Networking::Networking(systems::Input & input_system, int port) :
 
     server.set_message_handler(message_handler);
 
+    server.set_error_channels(websocketpp::log::elevel::all);
+    server.set_access_channels(websocketpp::log::alevel::all ^ websocketpp::log::alevel::frame_payload);
+
     server.init_asio();
     server.listen(port);
     server.start_accept();
 }
 
+Networking::~Networking()
+{
+    stop_server();
+}
+
 void Networking::start_server()
 {
-    server.run();
+    server_thread = std::thread([this] { server.run(); });
+}
+
+void Networking::stop_server()
+{
+
 }
 
 void Networking::send_message(const core::Message & msg)
@@ -45,14 +58,14 @@ void Networking::on_message(client hdl, ws_server::message_ptr msg)
 
     switch (parsed_msg.first)
     {
-    // If a new message asks for a new client, add it to client lists.
+    // If a message asks for a new client, add it to client lists.
     case core::MessageType::NewClient:
     {
         auto client_type = std::string((*parsed_msg.second)["new-client"].GetString());
 
-        if (client_type == "InputClient")
+        if (client_type == CLIENT_TYPE_INPUT)
         {            
-            // Check that client does not exist
+            // Check that client is actually a new client.
             if (input_clients.find(hdl) != input_clients.end())
             {
                 return;
@@ -77,7 +90,7 @@ void Networking::on_message(client hdl, ws_server::message_ptr msg)
                 std::cout << "New input client requested but could not be created. Server full." << std::endl;
             }
         }
-        else if (client_type == "OutputClient")
+        else if (client_type == CLIENT_TYPE_OUTPUT)
         {
             // Check that client does not exist
             if (output_clients.find(hdl) != output_clients.end())
@@ -86,7 +99,11 @@ void Networking::on_message(client hdl, ws_server::message_ptr msg)
             }
 
             std::cout << "New output client." << std::endl;
-            output_clients.insert({hdl, core::Player::ONE});
+            output_clients.insert({hdl, 1});
+        }
+        else
+        {
+            std::cout << "Not a valid new client request." << std::endl;
         }
     }
         break;

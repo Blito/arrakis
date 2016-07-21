@@ -7,7 +7,7 @@ namespace arrakis
 namespace core
 {
 
-    constexpr unsigned int max_players_count = 2;
+    constexpr unsigned int max_players_count = 10;
 
 } // end core
 } // end arrakis

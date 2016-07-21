@@ -4,6 +4,8 @@
 #include <functional>
 #include <unordered_map>
 #include <memory>
+#include <string>
+#include <thread>
 
 #include <websocketpp/server.hpp>
 #include <websocketpp/config/asio_no_tls.hpp>
@@ -36,8 +38,10 @@ class Networking
 {
 public:
     Networking(systems::Input & input_system, int port = 9002);
+    ~Networking();
 
     void start_server();
+    void stop_server();
 
     // send to output clients
     void send_message(const core::Message & msg);
@@ -47,7 +51,11 @@ public:
 
 protected:
     using ws_server = websocketpp::server<websocketpp::config::asio>;
+
+    // client handle used internally
     using client = websocketpp::connection_hdl;
+
+    // map: client -> player
     using clients = std::map<client, core::Player, std::owner_less<websocketpp::connection_hdl>>;
 
     // We need this to store enum classes as unordered_map keys.
@@ -68,11 +76,18 @@ protected:
     // Parses an incoming message into a Message.
     std::pair<core::MessageType, std::unique_ptr<rapidjson::Document>> parseMessage(const ws_server::message_ptr & msg);
 
-    ws_server server;          //< websocketpp server
-    clients input_clients;     //< clients that send input messages
-    clients output_clients;    //< clients that wait for our output messages
+    clients input_clients;
+    clients output_clients;
     message_listeners listeners;  //< who should we notify in our game system
     systems::Input & input_system;
+
+    ws_server server;
+    std::thread server_thread;
+
+    // Protocol constants
+    const std::string CLIENT_TYPE_INPUT = "InputClient";
+    const std::string CLIENT_TYPE_OUTPUT = "OutputClient";
+
 };
 
 } // end core

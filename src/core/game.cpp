@@ -16,20 +16,20 @@
 using namespace arrakis::core;
 
 Game::Game(int server_port) :
-    m_entityManager(m_eventManager),
-    m_systemsManager(m_entityManager, m_eventManager),
-    m_server(m_input, server_port)
+    entity_manager(event_manager),
+    systems_manager(entity_manager, event_manager),
+    networking_system(input_system, server_port)
 {
-    m_systemsManager.add<systems::PlayerController>(m_input);
-    m_systemsManager.add<systems::Physics>();
-    m_systemsManager.add<systems::Rendering>(m_server);
-    m_systemsManager.configure();
+    systems_manager.add<systems::PlayerController>(input_system);
+    systems_manager.add<systems::Physics>();
+    systems_manager.add<systems::Rendering>(networking_system);
+    systems_manager.configure();
 
     try
     {
-        m_server.register_to(MessageType::Input, m_input);
-        m_server.register_to(MessageType::NewClient, *this);
-        m_serverThread = std::thread([this] { m_server.start_server(); });
+        networking_system.register_to(MessageType::Input, input_system);
+        networking_system.register_to(MessageType::NewClient, *this);
+        networking_system.start_server();
         std::cout << "Server started in port " << server_port << std::endl;
     }
     catch (std::exception ex)
@@ -46,16 +46,16 @@ void Game::run()
     {
         using namespace std::literals::chrono_literals;
 
-        m_systemsManager.update<systems::PlayerController>(50.0f);
-        m_systemsManager.update<systems::Physics>(50.0f);
-        m_systemsManager.update<systems::Rendering>(50.0f);
+        systems_manager.update<systems::PlayerController>(50.0f);
+        systems_manager.update<systems::Physics>(50.0f);
+        systems_manager.update<systems::Rendering>(50.0f);
         std::this_thread::sleep_for(50ms);
     }
 }
 
 void Game::notify(Message msg, Player player)
 {
-    auto new_entity = m_entityManager.create();
+    auto new_entity = entity_manager.create();
 
     new_entity.assign<components::Position>(10, 5);
     new_entity.assign<components::Physics>(5.0f, true, utils::vec2f{1.1f, 1.5f}, utils::vec2f{400.0f, 700.0f});

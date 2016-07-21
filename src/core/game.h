@@ -1,8 +1,6 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <thread>
-
 #include <entityx/Entity.h>
 #include <entityx/System.h>
 
@@ -26,17 +24,15 @@ public:
 protected:
     void notify(Message msg, Player player) override;
 
-    entityx::EntityManager m_entityManager;
+    entityx::EntityManager entity_manager;
 
-    entityx::EventManager m_eventManager;
+    entityx::EventManager event_manager;
 
-    entityx::SystemManager m_systemsManager;
+    entityx::SystemManager systems_manager;
 
-    systems::Networking m_server;
+    systems::Networking networking_system;
 
-    systems::Input m_input;
-
-    std::thread m_serverThread;
+    systems::Input input_system;
 };
 
 } // end core

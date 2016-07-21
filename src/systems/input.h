@@ -39,6 +39,8 @@ public:
     // IMPORTANT: Check if there is_room_for_new_player() first.
     core::Player create_new_player();
 
+    void drop_player(core::Player player);
+
 protected:
     // inherited from MessageReceiver
     virtual void notify(core::Message msg, core::Player player) override;
@@ -47,9 +49,11 @@ protected:
     using Actions = std::array<bool, actions_count>; //< array with active actions
     using Players = std::array<Actions, core::max_players_count>; //< array of Actions, one for each player
 
-    Players m_players { { { { false } } } }; //< all players with their actions set as not-active
+    Players players_actions { { { { false } } } }; //< all players with their actions set as not-active
 
-    std::array<bool, core::max_players_count> m_enabled_players { {false} };
+    std::array<bool, core::max_players_count> enabled_players { {false} };
+
+    unsigned int playing_count = 0;
 
 };
 

@@ -11,18 +11,17 @@ using namespace arrakis::systems;
 
 bool Input::is_player_doing(core::Player player, Action action) const
 {
-    return is_playing(player) && m_players[core::enum_index(player)][core::enum_index(action)];
+    return is_playing(player) && players_actions[player][core::enum_index(action)];
 }
 
 bool Input::is_playing(core::Player player) const
 {
-    return m_enabled_players[core::enum_index(player)];
+    return enabled_players[player];
 }
 
 bool Input::is_room_for_new_player() const
 {
-    return std::any_of(m_enabled_players.begin(), m_enabled_players.end(),
-                       [](bool enabled) { return !enabled; });
+    return playing_count < core::max_players_count;
 }
 
 arrakis::core::Player Input::create_new_player()
@@ -30,20 +29,17 @@ arrakis::core::Player Input::create_new_player()
     // TODO: Class interface is not idiot-proof!
     assert(is_room_for_new_player());
 
-    if (!m_enabled_players[0])
+    // Guaranteed to find something
+    for (unsigned int player_number = 0; player_number < enabled_players.size(); player_number++)
     {
-        m_enabled_players[0] = true;
-        return core::Player::ONE;
+        if (!enabled_players[player_number])
+        {
+            enabled_players[player_number] = true;
+            return player_number;
+        }
     }
-    else if (!m_enabled_players[1])
-    {
-        m_enabled_players[1] = true;
-        return core::Player::TWO;
-    }
-    else
-    {
-        return core::Player::NA;
-    }
+
+    return enabled_players.size(); //< program should not reach this
 }
 
 void Input::notify(core::Message msg, core::Player player)
@@ -55,31 +51,31 @@ void Input::notify(core::Message msg, core::Player player)
     {
         if (action == "UP")
         {
-            m_players[enum_index(player)][enum_index(Action::UP)] = new_status;
+            players_actions[player][enum_index(Action::UP)] = new_status;
         }
         else if (action == "DOWN")
         {
-            m_players[enum_index(player)][enum_index(Action::DOWN)] = new_status;
+            players_actions[player][enum_index(Action::DOWN)] = new_status;
         }
         else if (action == "LEFT")
         {
-            m_players[enum_index(player)][enum_index(Action::LEFT)] = new_status;
+            players_actions[player][enum_index(Action::LEFT)] = new_status;
         }
         else if (action == "RIGHT")
         {
-            m_players[enum_index(player)][enum_index(Action::RIGHT)] = new_status;
+            players_actions[player][enum_index(Action::RIGHT)] = new_status;
         }
         else if (action == "JUMP")
         {
-            m_players[enum_index(player)][enum_index(Action::JUMP)] = new_status;
+            players_actions[player][enum_index(Action::JUMP)] = new_status;
         }
         else if (action == "A")
         {
-            m_players[enum_index(player)][enum_index(Action::A)] = new_status;
+            players_actions[player][enum_index(Action::A)] = new_status;
         }
         else if (action == "B")
         {
-            m_players[enum_index(player)][enum_index(Action::B)] = new_status;
+            players_actions[player][enum_index(Action::B)] = new_status;
         }
         else
         {
