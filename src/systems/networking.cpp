@@ -8,8 +8,10 @@ Networking::Networking(systems::Input & input_system, int port) :
     input_system(input_system)
 {
     auto message_handler = [this] (auto hdl, auto msg) { on_message(hdl, msg); };
+    auto close_handler = [this](auto hdl){ on_disconnect(hdl); };
 
     server.set_message_handler(message_handler);
+    server.set_close_handler(close_handler);
 
     server.set_error_channels(websocketpp::log::elevel::all);
     server.set_access_channels(websocketpp::log::alevel::all ^ websocketpp::log::alevel::frame_payload);
@@ -99,7 +101,9 @@ void Networking::on_message(client hdl, ws_server::message_ptr msg)
             }
 
             std::cout << "New output client." << std::endl;
-            output_clients.insert({hdl, 1});
+
+            // TODO: outpus clients may or may not be tied to a player!
+            output_clients.insert({hdl, core::max_players_count});
         }
         else
         {
@@ -132,6 +136,38 @@ void Networking::on_message(client hdl, ws_server::message_ptr msg)
         break;
     }
 
+}
+
+void Networking::on_disconnect(client hdl)
+{
+    core::PlayerID disconnected_player = core::max_players_count;
+
+    // Check if hdl is an input_client
+    auto input_client = input_clients.find(hdl);
+    if (input_client != input_clients.end())
+    {
+        disconnected_player = (*input_client).second;
+        input_clients.erase(input_client);
+
+        // Notify interested parties
+        auto input_listeners = listeners.equal_range(core::MessageType::ClientDisconnected);
+        core::Message message {core::MessageType::ClientDisconnected, std::string()};
+        std::for_each(input_listeners.first, input_listeners.second, [&message, &disconnected_player](auto listener)
+        {
+            listener.second.notify(message, disconnected_player);
+        });
+
+        std::cout << "Player " << disconnected_player << " disconnected." << std::endl;
+    }
+
+    // Check if hdl is an output client
+    auto output_client = output_clients.find(hdl);
+    if (output_client != output_clients.end())
+    {
+        // TODO: At the moment, output clients are not tied to players.
+        //disconnected_player = *output_client.second;
+        output_clients.erase(output_client);
+    }
 }
 
 /**

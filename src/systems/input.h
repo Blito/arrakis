@@ -27,25 +27,30 @@ public:
         DOWN  = 3,
         JUMP  = 4,
         A     = 5,
-        B     = 6
-    };
+        B     = 6,
+        PAUSE = 7
+    }; // see actions_count
 
-    bool is_player_doing(core::Player player, Action action) const;
+    bool is_player_doing(core::PlayerID player, Action action) const;
 
-    bool is_playing(core::Player player) const;
+    bool is_anyone_doing(Action action) const;
+
+    bool is_playing(core::PlayerID player) const;
 
     bool is_room_for_new_player() const;
 
-    // IMPORTANT: Check if there is_room_for_new_player() first.
-    core::Player create_new_player();
+    unsigned int active_players_count() const { return playing_count; }
 
-    void drop_player(core::Player player);
+    // IMPORTANT: Check if there is_room_for_new_player() first.
+    core::PlayerID create_new_player();
+
+    void drop_player(core::PlayerID player);
 
 protected:
     // inherited from MessageReceiver
-    virtual void notify(core::Message msg, core::Player player) override;
+    virtual void notify(core::Message msg, core::PlayerID player) override;
 
-    static constexpr size_t actions_count = 7;
+    static constexpr size_t actions_count = 8;
     using Actions = std::array<bool, actions_count>; //< array with active actions
     using Players = std::array<Actions, core::max_players_count>; //< array of Actions, one for each player
 

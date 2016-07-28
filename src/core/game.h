@@ -22,7 +22,9 @@ public:
     void run();
 
 protected:
-    void notify(Message msg, Player player) override;
+    bool is_paused() const;
+
+    void notify(Message msg, PlayerID player) override;
 
     entityx::EntityManager entity_manager;
 

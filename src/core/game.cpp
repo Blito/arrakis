@@ -1,6 +1,7 @@
 #include "game.h"
 
 #include <iostream>
+#include <algorithm>
 
 #include <core/constants.h>
 #include <core/message.h>
@@ -28,6 +29,7 @@ Game::Game(int server_port) :
     try
     {
         networking_system.register_to(MessageType::Input, input_system);
+        networking_system.register_to(MessageType::ClientDisconnected, input_system);
         networking_system.register_to(MessageType::NewClient, *this);
         networking_system.start_server();
         std::cout << "Server started in port " << server_port << std::endl;
@@ -46,14 +48,23 @@ void Game::run()
     {
         using namespace std::literals::chrono_literals;
 
-        systems_manager.update<systems::PlayerController>(50.0f);
-        systems_manager.update<systems::Physics>(50.0f);
-        systems_manager.update<systems::Rendering>(50.0f);
+        float time_elapsed = is_paused() ? 0.0 : 50.0f;
+
+        if (is_paused()) std::cout << "Game paused." << std::endl;
+
+        systems_manager.update<systems::PlayerController>(time_elapsed);
+        systems_manager.update<systems::Physics>(time_elapsed);
+        systems_manager.update<systems::Rendering>(time_elapsed);
         std::this_thread::sleep_for(50ms);
     }
 }
 
-void Game::notify(Message msg, Player player)
+bool Game::is_paused() const
+{
+    return input_system.is_anyone_doing(systems::Input::Action::PAUSE);
+}
+
+void Game::notify(Message msg, PlayerID player)
 {
     auto new_entity = entity_manager.create();
 

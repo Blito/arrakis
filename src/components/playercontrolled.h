@@ -11,9 +11,9 @@ namespace components
 
 struct PlayerControlled
 {
-    PlayerControlled(core::Player controlled_by) : controlled_by(controlled_by) {}
+    PlayerControlled(core::PlayerID controlled_by) : controlled_by(controlled_by) {}
 
-    core::Player controlled_by;
+    core::PlayerID controlled_by;
 };
 
 } // end components

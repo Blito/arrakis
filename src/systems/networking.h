@@ -56,7 +56,7 @@ protected:
     using client = websocketpp::connection_hdl;
 
     // map: client -> player
-    using clients = std::map<client, core::Player, std::owner_less<websocketpp::connection_hdl>>;
+    using clients = std::map<client, core::PlayerID, std::owner_less<websocketpp::connection_hdl>>;
 
     // We need this to store enum classes as unordered_map keys.
     struct EnumClassHash
@@ -72,6 +72,8 @@ protected:
     // Parses incoming messages and dispatches it accordingly.
     void on_message(client hdl, ws_server::message_ptr msg);
 
+    // Cleans up structures on client disconnection.
+    void on_disconnect(client hdl);
 
     // Parses an incoming message into a Message.
     std::pair<core::MessageType, std::unique_ptr<rapidjson::Document>> parseMessage(const ws_server::message_ptr & msg);

@@ -12,6 +12,7 @@ namespace core
 enum class MessageType
 {
     NewClient,
+    ClientDisconnected,
     Input,
     Output,
     ParseError
@@ -23,7 +24,7 @@ struct Message
     std::string payload;
 };
 
-typedef unsigned short Player;
+typedef unsigned short PlayerID;
 
 // Example: enum_index(Player::ONE) == 0
 template<class T>
@@ -36,7 +37,7 @@ inline auto enum_index(T elem) noexcept
 class MessageReceiver
 {
 public:
-    virtual void notify(Message msg, Player player) = 0;
+    virtual void notify(Message msg, PlayerID player) = 0;
 };
 
 } // end core
