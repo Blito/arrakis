@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <chrono>
 
 #include <core/constants.h>
 #include <core/message.h>
@@ -46,16 +47,27 @@ void Game::run()
 
     while (true)
     {
+        using namespace std::chrono;
         using namespace std::literals::chrono_literals;
 
-        float time_elapsed = is_paused() ? 0.0 : 50.0f;
+        auto start_time = std::chrono::high_resolution_clock::now();
 
-        if (is_paused()) std::cout << "Game paused." << std::endl;
+        float tick_length_ms = is_paused() ? 0.0f : tick_length.count();
 
-        systems_manager.update<systems::PlayerController>(time_elapsed);
-        systems_manager.update<systems::Physics>(time_elapsed);
-        systems_manager.update<systems::Rendering>(time_elapsed);
-        std::this_thread::sleep_for(50ms);
+        systems_manager.update<systems::PlayerController>(tick_length_ms);
+        systems_manager.update<systems::Physics>(tick_length_ms);
+        systems_manager.update<systems::Rendering>(tick_length_ms);
+
+        auto time_elapsed = high_resolution_clock::now() - start_time;
+
+        if (time_elapsed > tick_length)
+        {
+            std::cout << "Tick length exceeded!" << std::endl;
+        }
+        else
+        {
+            std::this_thread::sleep_for(tick_length - time_elapsed);
+        }
     }
 }
 

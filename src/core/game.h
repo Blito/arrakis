@@ -35,6 +35,8 @@ protected:
     systems::Networking networking_system;
 
     systems::Input input_system;
+
+    const std::chrono::milliseconds tick_length { 33 }; // 30 fps
 };
 
 } // end core
