@@ -21,11 +21,7 @@ public:
     void update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt) override;
 
 protected:
-    // Adds friction based on the current acceleration
-    void update_acceleration(components::Physics & physics, entityx::TimeDelta dt);
-
-    // Updates velocity using updated acceleration
-    void update_velocity(components::Physics & physics, float dt);
+    void update_positions(entityx::EntityManager & entities, entityx::TimeDelta dt);
 
     // Keeps x and y between world_bounds_x and world_bounds_y
     void keep_in_world_bounds(float & x, float & y, bool &collided);
@@ -33,7 +29,7 @@ protected:
     // Rounds magnitude to 0 of lower than abs(static_threshold)
     void round_to_static(float & magnitude, float threshold);
 
-    static constexpr float gravity = -9.8f;
+    static constexpr float gravity = -0.000098f; // [pixels / ms]
     static constexpr float static_threshold = 0.000001f;
 
     struct { float min, max; } world_bounds_x {0, 500}, world_bounds_y {0, 500};

@@ -13,8 +13,10 @@ Networking::Networking(systems::Input & input_system, int port) :
     server.set_message_handler(message_handler);
     server.set_close_handler(close_handler);
 
+    server.clear_access_channels(websocketpp::log::alevel::all);
     server.set_error_channels(websocketpp::log::elevel::all);
-    server.set_access_channels(websocketpp::log::alevel::all ^ websocketpp::log::alevel::frame_payload);
+    server.set_access_channels(websocketpp::log::alevel::access_core);
+    server.set_access_channels(websocketpp::log::alevel::app);
 
     server.init_asio();
     server.listen(port);

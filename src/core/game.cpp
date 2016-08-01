@@ -80,8 +80,8 @@ void Game::notify(Message msg, PlayerID player)
 {
     auto new_entity = entity_manager.create();
 
-    new_entity.assign<components::Position>(10, 5);
-    new_entity.assign<components::Physics>(5.0f, true, utils::vec2f{1.1f, 1.5f}, utils::vec2f{400.0f, 700.0f});
+    new_entity.assign<components::Position>(10, 50);
+    new_entity.assign<components::Physics>(5.0f, true, utils::vec2f{0.5f, 0.5f});
     new_entity.assign<components::Rendering>(true);
     new_entity.assign<components::PlayerControlled>(player);
 }

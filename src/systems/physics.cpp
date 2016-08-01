@@ -7,67 +7,38 @@ using namespace arrakis::systems;
 
 void Physics::update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt)
 {
+    // Update position of entities with Physics component
+    update_positions(entities, dt);
+}
+
+void Physics::update_positions(entityx::EntityManager &entities, entityx::TimeDelta dt)
+{
     using namespace arrakis::components;
-
-    entities.each<Position, components::Physics>([this, dt](entityx::Entity entity, Position & position, components::Physics & physics)
+    entities.each<Position, components::Physics>([dt](entityx::Entity entity, Position & position, components::Physics & physics)
     {
-        float _dt = dt / 1000.0f;
+        float _dt = dt;
 
-        update_velocity(physics, _dt);
+        if (physics.mass == 0)
+        {
+            return;
+        }
 
-        // update position
+        // force -> acceleration
+        physics.acceleration = physics.force / physics.mass;
+        if (physics.has_gravity)
+        {
+            physics.acceleration.y += gravity;
+        }
+        physics.force = { 0.0f, 0.0f };
+
+        // acceleration -> velocity
+        physics.velocity.x = std::min(physics.acceleration.x * _dt + physics.velocity.x, physics.max_velocity.x);
+        physics.velocity.y = std::min(physics.acceleration.y * _dt + physics.velocity.y, physics.max_velocity.y);
+
+        // velocity -> position
         position.x += physics.velocity.x * _dt;
         position.y += physics.velocity.y * _dt;
-
-        bool collided;
-        keep_in_world_bounds(position.x, position.y, collided);
-
-        if (collided)
-        {
-            physics.velocity.x = 0.0f;
-        }
-
-        // if it collided with ground
-        if(position.y == world_bounds_y.min)
-        {
-            physics.velocity.y = 0.0f;
-        }
     });
-}
-
-void Physics::update_acceleration(components::Physics & physics, entityx::TimeDelta dt)
-{
-}
-
-void Physics::update_velocity(components::Physics & physics, float dt)
-{
-    auto keep_in_bounds = [](float & magnitude, float abs_bound)
-    {
-        if (magnitude < -abs_bound)
-        {
-            magnitude = -abs_bound;
-        }
-        else if (magnitude > abs_bound)
-        {
-            magnitude = abs_bound;
-        }
-    };
-
-    physics.velocity += physics.acceleration * dt;
-    if (physics.has_gravity)
-    {
-        physics.velocity.y += gravity * dt;
-    }
-
-    keep_in_bounds(physics.velocity.x, physics.max_velocity.x);
-    keep_in_bounds(physics.velocity.y, physics.max_velocity.y);
-    round_to_static(physics.velocity.x, 0.00001f);
-    round_to_static(physics.velocity.y, 0.00001f);
-
-    if (physics.velocity.x != 0)
-    {
-        physics.velocity.x /= physics.friction.x;
-    }
 }
 
 void Physics::keep_in_world_bounds(float & x, float & y, bool & collided)

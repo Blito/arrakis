@@ -22,22 +22,20 @@ void PlayerController::update(entityx::EntityManager & entities, entityx::EventM
         auto right = input_system.is_player_doing(actor.controlled_by, Input::Action::RIGHT);
         auto left = input_system.is_player_doing(actor.controlled_by, Input::Action::LEFT);
 
-        if (jump && physics.velocity.y == 0.0f)
-        {
-            physics.acceleration.y = jump_acceleration;
-        }
-        else
-        {
-            physics.acceleration.y = 0.0f;
-        }
+//        if (jump)
+//        {
+//            physics.force.y = 10 * physics.mass;
+//        }
 
-        if (right != left)
-        {
-            physics.acceleration.x = right ? lateral_acceleration : -lateral_acceleration;
-        }
-        else
-        {
-            physics.acceleration.x = 0.0f;
-        }
+//        physics.velocity.x = 0.05;
+
+//        if (right != left)
+//        {
+//            physics.acceleration.x = right ? lateral_acceleration : -lateral_acceleration;
+//        }
+//        else
+//        {
+//            physics.acceleration.x = 0.0f;
+//        }
     });
 }
