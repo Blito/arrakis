@@ -6,6 +6,7 @@
 
 #include <core/constants.h>
 #include <core/message.h>
+#include <components/boxcollider.h>
 #include <components/physics.h>
 #include <components/playercontrolled.h>
 #include <components/position.h>
@@ -26,6 +27,8 @@ Game::Game(int server_port) :
     systems_manager.add<systems::Physics>();
     systems_manager.add<systems::Rendering>(networking_system);
     systems_manager.configure();
+
+    init_scene();
 
     try
     {
@@ -71,6 +74,14 @@ void Game::run()
     }
 }
 
+void Game::init_scene()
+{
+    auto floor = entity_manager.create();
+
+    floor.assign<components::Position>(250, 15);
+    floor.assign<components::BoxCollider>(-250, 250, -15, 15, true, true, true);
+}
+
 bool Game::is_paused() const
 {
     return input_system.is_anyone_doing(systems::Input::Action::PAUSE);
@@ -82,6 +93,7 @@ void Game::notify(Message msg, PlayerID player)
 
     new_entity.assign<components::Position>(10, 50);
     new_entity.assign<components::Physics>(5.0f, true, utils::vec2f{0.5f, 0.5f});
+    new_entity.assign<components::BoxCollider>(-10, 10, -10, 10);
     new_entity.assign<components::Rendering>(true);
     new_entity.assign<components::PlayerControlled>(player);
 }

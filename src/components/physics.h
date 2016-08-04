@@ -14,7 +14,12 @@ struct Physics
     Physics(float mass = 1.0f,
             bool has_gravity = true,
             utils::vec2f max_velocity = {0.01f, 0.01f})
-        : mass(mass), force(force), acceleration(acceleration), velocity(velocity), max_velocity(max_velocity), has_gravity(has_gravity) {}
+        : mass(mass),
+          force(force),
+          acceleration(acceleration),
+          velocity(velocity),
+          max_velocity(max_velocity),
+          has_gravity(has_gravity) {}
 
 
     float           mass;

@@ -22,6 +22,8 @@ public:
     void run();
 
 protected:
+    void init_scene();
+
     bool is_paused() const;
 
     void notify(Message msg, PlayerID player) override;
