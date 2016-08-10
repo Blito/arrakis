@@ -9,6 +9,7 @@ namespace arrakis
 namespace components
 {
 
+// Required component for game objects affected by gravity and collisions.
 struct Physics
 {
     Physics(float mass = 1.0f,

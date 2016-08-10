@@ -84,6 +84,16 @@ void Physics::check_collisions(entityx::EntityManager & entities, entityx::TimeD
                 if (collided)
                 {
                     solve_collision(entity_1, entity_2, position_1, position_2, collider_1, collider_2, inside_vertical, inside_horizontal);
+
+                    if (collider_1->on_collision)
+                    {
+                        collider_1->on_collision({*collider_2.get(), *position_2.get(), entity_2});
+                    }
+
+                    if (collider_2->on_collision)
+                    {
+                        collider_2->on_collision({*collider_1.get(), *position_1.get(), entity_1});
+                    }
                 }
             }
         }

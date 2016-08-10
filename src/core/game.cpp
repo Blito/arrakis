@@ -93,7 +93,12 @@ void Game::notify(Message msg, PlayerID player)
 
     new_entity.assign<components::Position>(10, 50);
     new_entity.assign<components::Physics>(5.0f, true, utils::vec2f{0.5f, 0.5f});
-    new_entity.assign<components::BoxCollider>(-10, 10, -10, 10);
+    auto collider = new_entity.assign<components::BoxCollider>(-10, 10, -10, 10);
     new_entity.assign<components::Rendering>(true);
     new_entity.assign<components::PlayerControlled>(player);
+
+    collider->on_collision = [](components::Collision collision)
+    {
+        std::cout << "Collided against entity " << collision.other_entity << std::endl;
+    };
 }
