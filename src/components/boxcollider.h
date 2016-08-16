@@ -40,6 +40,8 @@ struct BoxCollider
     float x_min, x_max, y_min, y_max;
 
     std::function<void(Collision)> on_collision = nullptr;
+
+    bool airborn;
 };
 
 } // end components

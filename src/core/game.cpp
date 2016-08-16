@@ -99,6 +99,6 @@ void Game::notify(Message msg, PlayerID player)
 
     collider->on_collision = [](components::Collision collision)
     {
-        std::cout << "Collided against entity " << collision.other_entity << std::endl;
+        //std::cout << "Collided against entity " << collision.other_entity << std::endl;
     };
 }

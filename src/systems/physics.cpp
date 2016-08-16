@@ -57,7 +57,11 @@ void Physics::check_collisions(entityx::EntityManager & entities, entityx::TimeD
     auto entities_1 = entities.entities_with_components(position_1, collider_1);
     auto entities_2 = entities.entities_with_components(position_2, collider_2);
 
-    // Naive approach, O(n^2)
+    for (entityx::Entity entity_1 : entities_1) {
+        collider_1->airborn = true;
+    }
+
+    // Naive approach, O(dynamic * (total-1) )
     for (entityx::Entity entity_1 : entities_1) {
 
         auto left_1  = position_1->x + collider_1->x_min;
@@ -83,6 +87,9 @@ void Physics::check_collisions(entityx::EntityManager & entities, entityx::TimeD
 
                 if (collided)
                 {
+                    collider_1->airborn = false;
+                    collider_2->airborn = false;
+
                     solve_collision(entity_1, entity_2, position_1, position_2, collider_1, collider_2, inside_vertical, inside_horizontal);
 
                     if (collider_1->on_collision)
@@ -177,7 +184,6 @@ void Physics::solve_collision(entityx::Entity & entity_1,
             physics_comp->velocity.y = 0.0f;
         }
     }
-
 
 }
 

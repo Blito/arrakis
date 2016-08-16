@@ -1,5 +1,6 @@
 #include "playercontroller.h"
 
+#include <components/boxcollider.h>
 #include <components/playercontrolled.h>
 #include <components/physics.h>
 #include <systems/input.h>
@@ -16,15 +17,16 @@ void PlayerController::update(entityx::EntityManager & entities, entityx::EventM
 {
     using namespace arrakis::components;
 
-    entities.each<PlayerControlled, Physics>([this, dt](entityx::Entity entity, PlayerControlled & actor, Physics & physics)
+    entities.each<PlayerControlled, Physics, BoxCollider>([this, dt](entityx::Entity entity, PlayerControlled & actor, Physics & physics, BoxCollider & collider)
     {
         auto jump = input_system.is_player_doing(actor.controlled_by, Input::Action::JUMP);
         auto right = input_system.is_player_doing(actor.controlled_by, Input::Action::RIGHT);
         auto left = input_system.is_player_doing(actor.controlled_by, Input::Action::LEFT);
 
-        if (jump)
+        if (!collider.airborn && jump)
         {
-            physics.force.y = 0.008;
+            physics.force.y = 0.008f;
+            physics.velocity.y = 0.01;
         }
 
 //        physics.velocity.x = 0.05;
