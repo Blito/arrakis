@@ -97,13 +97,13 @@ void Input::notify(core::Message msg, core::PlayerID player)
             {
                 players_actions[player][enum_index(Action::JUMP)] = new_status;
             }
-            else if (action == "A")
+            else if (action == "AIM")
             {
-                players_actions[player][enum_index(Action::A)] = new_status;
+                players_actions[player][enum_index(Action::AIM)] = new_status;
             }
-            else if (action == "B")
+            else if (action == "DASH")
             {
-                players_actions[player][enum_index(Action::B)] = new_status;
+                players_actions[player][enum_index(Action::DASH)] = new_status;
             }
             else if (action == "PAUSE")
             {

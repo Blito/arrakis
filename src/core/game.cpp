@@ -77,9 +77,12 @@ void Game::run()
 void Game::init_scene()
 {
     auto floor = entity_manager.create();
-
     floor.assign<components::Position>(250, 15);
     floor.assign<components::BoxCollider>(-250, 250, -15, 15, true, true, true);
+
+    auto left_wall = entity_manager.create();
+    left_wall.assign<components::Position>(10, 60);
+    left_wall.assign<components::BoxCollider>(-10, 10, -30, 30, true, true, true);
 }
 
 bool Game::is_paused() const
@@ -89,13 +92,13 @@ bool Game::is_paused() const
 
 void Game::notify(Message msg, PlayerID player)
 {
-    auto new_entity = entity_manager.create();
+    auto new_player = entity_manager.create();
 
-    new_entity.assign<components::Position>(10, 50);
-    new_entity.assign<components::Physics>(5.0f, true, utils::vec2f{0.5f, 0.5f});
-    auto collider = new_entity.assign<components::BoxCollider>(-10, 10, -10, 10);
-    new_entity.assign<components::Rendering>(true);
-    new_entity.assign<components::PlayerControlled>(player);
+    new_player.assign<components::Position>(50, 50);
+    new_player.assign<components::Physics>(5.0f, true, utils::vec2f{0.5f, 0.5f});
+    auto collider = new_player.assign<components::BoxCollider>(-10, 10, -10, 10);
+    new_player.assign<components::Rendering>(true);
+    new_player.assign<components::PlayerControlled>(player);
 
     collider->on_collision = [](components::Collision collision)
     {

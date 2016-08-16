@@ -21,8 +21,8 @@ public:
     void update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt) override;
 
 protected:
-    static constexpr float jump_acceleration = 800.0f;
-    static constexpr float lateral_acceleration = 70.0f;
+    static constexpr float jump_acceleration = 0.009f;
+    static constexpr float lateral_velocity = 0.05f;
 
     Input & input_system; //< who should we ask for input
 };

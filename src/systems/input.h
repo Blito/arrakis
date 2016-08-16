@@ -26,8 +26,8 @@ public:
         RIGHT = 2,
         DOWN  = 3,
         JUMP  = 4,
-        A     = 5,
-        B     = 6,
+        AIM   = 5,
+        DASH  = 6,
         PAUSE = 7
     }; // see actions_count
 
