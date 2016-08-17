@@ -3,6 +3,8 @@
 
 #include <entityx/System.h>
 
+#include <rapidjson/document.h>
+
 namespace arrakis
 {
 
@@ -21,6 +23,8 @@ public:
     void update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt) override;
 
 protected:
+    void drawPlayers(rapidjson::Value & objects_array, rapidjson::Document::AllocatorType & allocator, entityx::EntityManager & entities) const;
+
     Networking & networking_system;
 };
 

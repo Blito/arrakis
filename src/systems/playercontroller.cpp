@@ -19,26 +19,93 @@ void PlayerController::update(entityx::EntityManager & entities, entityx::EventM
 
     entities.each<PlayerControlled, Physics, BoxCollider>([this, dt](entityx::Entity entity, PlayerControlled & actor, Physics & physics, BoxCollider & collider)
     {
-        auto jump   = input_system.is_player_doing(actor.controlled_by, Input::Action::JUMP);
+        // Movement
         auto right  = input_system.is_player_doing(actor.controlled_by, Input::Action::RIGHT);
         auto left   = input_system.is_player_doing(actor.controlled_by, Input::Action::LEFT);
+        auto down   = input_system.is_player_doing(actor.controlled_by, Input::Action::DOWN);
+        auto up     = input_system.is_player_doing(actor.controlled_by, Input::Action::UP);
+
+        // Actions
+        auto jump   = input_system.is_player_doing(actor.controlled_by, Input::Action::JUMP);
         auto aiming = input_system.is_player_doing(actor.controlled_by, Input::Action::AIM);
 
-        if (!collider.airborn && jump)
+        actor.status = PlayerControlled::Status::IDLE;
+
+        if (collider.airborn)
         {
-            physics.force.y = jump_acceleration;
-            //physics.velocity.y = 0.01;
+            actor.status = PlayerControlled::Status::AIRBORN;
+        }
+        else
+        {
+            // Player is on the floor
+            if (jump)
+            {
+                physics.force.y = jump_acceleration;
+            }
+
+            if (down)
+            {
+                actor.status = PlayerControlled::Status::DUCKING;
+            }
         }
 
         if (!aiming)
         {
+            actor.aim_direction = PlayerControlled::Direction::NONE;
+
             if (right != left)
             {
+                actor.status = PlayerControlled::Status::WALKING;
+
                 physics.velocity.x = right ? lateral_velocity: -lateral_velocity;
             }
             else
             {
                 physics.velocity.x = 0.0f;
+            }
+        }
+        else
+        {
+            if (!((up && down) || (right && left)))
+            {
+                if (up)
+                {
+                    if (right)
+                    {
+                        actor.aim_direction = PlayerControlled::Direction::NE;
+                    }
+                    else if (left)
+                    {
+                        actor.aim_direction = PlayerControlled::Direction::NW;
+                    }
+                    else
+                    {
+                        actor.aim_direction = PlayerControlled::Direction::N;
+                    }
+                }
+                else if (down)
+                {
+                    if (right)
+                    {
+                        actor.aim_direction = PlayerControlled::Direction::SE;
+                    }
+                    else if (left)
+                    {
+                        actor.aim_direction = PlayerControlled::Direction::SW;
+                    }
+                    else
+                    {
+                        actor.aim_direction = PlayerControlled::Direction::S;
+                    }
+                }
+                else if (right)
+                {
+                    actor.aim_direction = PlayerControlled::Direction::E;
+                }
+                else if (left)
+                {
+                    actor.aim_direction = PlayerControlled::Direction::W;
+                }
             }
         }
     });
