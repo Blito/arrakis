@@ -19,6 +19,9 @@ void PlayerController::update(entityx::EntityManager & entities, entityx::EventM
 
     entities.each<PlayerControlled, Physics, BoxCollider>([this, dt](entityx::Entity entity, PlayerControlled & actor, Physics & physics, BoxCollider & collider)
     {
+        using Status = PlayerControlled::Status;
+        using Direction = PlayerControlled::Direction;
+
         // Movement
         auto right  = input_system.is_player_doing(actor.controlled_by, Input::Action::RIGHT);
         auto left   = input_system.is_player_doing(actor.controlled_by, Input::Action::LEFT);
@@ -29,11 +32,11 @@ void PlayerController::update(entityx::EntityManager & entities, entityx::EventM
         auto jump   = input_system.is_player_doing(actor.controlled_by, Input::Action::JUMP);
         auto aiming = input_system.is_player_doing(actor.controlled_by, Input::Action::AIM);
 
-        actor.status = PlayerControlled::Status::IDLE;
+        actor.status = Status::IDLE;
 
         if (collider.airborn)
         {
-            actor.status = PlayerControlled::Status::AIRBORN;
+            actor.status = Status::AIRBORN;
         }
         else
         {
@@ -45,17 +48,20 @@ void PlayerController::update(entityx::EntityManager & entities, entityx::EventM
 
             if (down)
             {
-                actor.status = PlayerControlled::Status::DUCKING;
+                actor.status = Status::DUCKING;
             }
         }
 
         if (!aiming)
         {
-            actor.aim_direction = PlayerControlled::Direction::NONE;
+            actor.aim_direction = Direction::NONE;
 
             if (right != left)
             {
-                actor.status = PlayerControlled::Status::WALKING;
+                if (actor.status != Status::AIRBORN)
+                {
+                    actor.status = Status::WALKING;
+                }
 
                 physics.velocity.x = right ? lateral_velocity: -lateral_velocity;
             }
@@ -72,39 +78,39 @@ void PlayerController::update(entityx::EntityManager & entities, entityx::EventM
                 {
                     if (right)
                     {
-                        actor.aim_direction = PlayerControlled::Direction::NE;
+                        actor.aim_direction = Direction::NE;
                     }
                     else if (left)
                     {
-                        actor.aim_direction = PlayerControlled::Direction::NW;
+                        actor.aim_direction = Direction::NW;
                     }
                     else
                     {
-                        actor.aim_direction = PlayerControlled::Direction::N;
+                        actor.aim_direction = Direction::N;
                     }
                 }
                 else if (down)
                 {
                     if (right)
                     {
-                        actor.aim_direction = PlayerControlled::Direction::SE;
+                        actor.aim_direction = Direction::SE;
                     }
                     else if (left)
                     {
-                        actor.aim_direction = PlayerControlled::Direction::SW;
+                        actor.aim_direction = Direction::SW;
                     }
                     else
                     {
-                        actor.aim_direction = PlayerControlled::Direction::S;
+                        actor.aim_direction = actor.status == Status::DUCKING ? Direction::NONE : Direction::S;
                     }
                 }
                 else if (right)
                 {
-                    actor.aim_direction = PlayerControlled::Direction::E;
+                    actor.aim_direction = Direction::E;
                 }
                 else if (left)
                 {
-                    actor.aim_direction = PlayerControlled::Direction::W;
+                    actor.aim_direction = Direction::W;
                 }
             }
         }

@@ -46,8 +46,11 @@ void Rendering::drawPlayers(rapidjson::Value & objects_array, rapidjson::Documen
     using namespace arrakis::components;
     using namespace rapidjson;
 
+    const std::unordered_map<components::PlayerControlled::Status, std::string, EnumClassHash> & status = this->status_text;
+    const std::unordered_map<components::PlayerControlled::Direction, std::string, EnumClassHash> & direction = this->direction_text;
+
     entities.each<Position, PlayerControlled, components::Rendering>(
-    [&objects_array, &allocator](entityx::Entity entity, Position & position, PlayerControlled & player, components::Rendering & rendering)
+    [&objects_array, &allocator, &status, &direction](entityx::Entity entity, Position & position, PlayerControlled & player, components::Rendering & rendering)
     {
         if (!rendering.enabled)
         {
@@ -57,10 +60,15 @@ void Rendering::drawPlayers(rapidjson::Value & objects_array, rapidjson::Documen
         Value object; // [id, x, y]
         object.SetObject();
         object.AddMember("id", player.controlled_by, allocator);
+
         object.AddMember("x", position.x, allocator);
         object.AddMember("y", position.y, allocator);
-        //object.AddMember("status", player.status, allocator);
-        //object.AddMember("aim", player.aim_direction, allocator);
+
+        rapidjson::Document::StringRefType status_value(status.at(player.status).c_str());
+        object.AddMember("status", status_value, allocator);
+
+        rapidjson::Document::StringRefType direction_value(direction.at(player.aim_direction).c_str());
+        object.AddMember("aiming-to", direction_value, allocator);
 
         objects_array.PushBack(object, allocator);
     });
