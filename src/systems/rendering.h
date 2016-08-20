@@ -28,7 +28,8 @@ public:
     void update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt) override;
 
 protected:
-    void drawPlayers(rapidjson::Value & objects_array, rapidjson::Document::AllocatorType & allocator, entityx::EntityManager & entities) const;
+    void drawPlayer(entityx::Entity & entity, rapidjson::Value & players_array, rapidjson::Document::AllocatorType & allocator) const;
+    void drawArrow(entityx::Entity & entity, rapidjson::Value & arrows_array, rapidjson::Document::AllocatorType & allocator) const;
 
     Networking & networking_system;
 

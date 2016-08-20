@@ -97,7 +97,7 @@ void Game::notify(Message msg, PlayerID player)
     new_player.assign<components::Position>(50, 50);
     new_player.assign<components::Physics>(5.0f, true, utils::vec2f{0.5f, 0.5f});
     auto collider = new_player.assign<components::BoxCollider>(-10, 10, -10, 10);
-    new_player.assign<components::Rendering>(true);
+    new_player.assign<components::Rendering>(components::Rendering::Tag::PLAYER);
     new_player.assign<components::PlayerControlled>(player);
 
     collider->on_collision = [](components::Collision collision)

@@ -6,6 +6,12 @@
 namespace arrakis
 {
 
+namespace components
+{
+    struct Position;
+    struct PlayerControlled;
+}
+
 namespace systems
 {
 
@@ -23,6 +29,8 @@ public:
 protected:
     static constexpr float jump_acceleration = 0.009f;
     static constexpr float lateral_velocity = 0.05f;
+
+    void spawn_arrow(entityx::EntityManager & entity_manager, components::Position & player_position, components::PlayerControlled & player_info) const;
 
     Input & input_system; //< who should we ask for input
 };

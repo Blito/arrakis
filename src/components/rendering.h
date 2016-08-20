@@ -9,9 +9,16 @@ namespace components
 
 struct Rendering
 {
-    Rendering(bool enabled) : enabled(enabled) {}
+    enum class Tag
+    {
+        PLAYER,
+        ARROW
+    };
+
+    Rendering(Tag tag, bool enabled = true) : tag(tag), enabled(enabled) {}
 
     bool enabled;
+    Tag tag;
 };
 
 } // end components

@@ -25,13 +25,31 @@ void Rendering::update(entityx::EntityManager & entities, entityx::EventManager 
     Document frame;
     frame.SetObject();
 
-    // Create array with objects with a Rendering component
-    Value objects_array(kArrayType);
-    auto& allocator = frame.GetAllocator();
-    drawPlayers(objects_array, allocator, entities);
+    // Create empty arrays for characters and arrows.
+    Value players_array(kArrayType);
+    Value arrows_array(kArrayType);
 
-    // Add array to output JSON
-    frame.AddMember("to_render", objects_array, allocator);
+    auto& allocator = frame.GetAllocator();
+
+    entities.each<components::Rendering>(
+    [&players_array, &arrows_array, &allocator, this](entityx::Entity entity, components::Rendering & rendering)
+    {
+        if (rendering.enabled)
+        {
+            switch (rendering.tag)
+            {
+            case components::Rendering::Tag::PLAYER:
+                drawPlayer(entity, players_array, allocator);
+                break;
+            case components::Rendering::Tag::ARROW:
+                drawArrow(entity, arrows_array, allocator);
+                break;
+            }
+        }
+    });
+
+    frame.AddMember("players", players_array, allocator);
+    frame.AddMember("arrows", arrows_array, allocator);
 
     StringBuffer sb;
     Writer<StringBuffer> writer(sb);
@@ -41,35 +59,45 @@ void Rendering::update(entityx::EntityManager & entities, entityx::EventManager 
     networking_system.send_message({core::MessageType::Output, sb.GetString()});
 }
 
-void Rendering::drawPlayers(rapidjson::Value & objects_array, rapidjson::Document::AllocatorType & allocator, entityx::EntityManager & entities) const
+void Rendering::drawPlayer(entityx::Entity & entity, rapidjson::Value & players_array, rapidjson::Document::AllocatorType & allocator) const
 {
     using namespace arrakis::components;
     using namespace rapidjson;
 
-    const std::unordered_map<components::PlayerControlled::Status, std::string, EnumClassHash> & status = this->status_text;
-    const std::unordered_map<components::PlayerControlled::Direction, std::string, EnumClassHash> & direction = this->direction_text;
+    const std::unordered_map<PlayerControlled::Status, std::string, EnumClassHash> & status = this->status_text;
+    const std::unordered_map<PlayerControlled::Direction, std::string, EnumClassHash> & direction = this->direction_text;
 
-    entities.each<Position, PlayerControlled, components::Rendering>(
-    [&objects_array, &allocator, &status, &direction](entityx::Entity entity, Position & position, PlayerControlled & player, components::Rendering & rendering)
-    {
-        if (!rendering.enabled)
-        {
-            return;
-        }
+    auto position = entity.component<Position>();
+    auto player = entity.component<PlayerControlled>();
 
-        Value object; // [id, x, y]
-        object.SetObject();
-        object.AddMember("id", player.controlled_by, allocator);
+    Value object; // [id, x, y]
+    object.SetObject();
+    object.AddMember("id", player->controlled_by, allocator);
 
-        object.AddMember("x", position.x, allocator);
-        object.AddMember("y", position.y, allocator);
+    object.AddMember("x", position->x, allocator);
+    object.AddMember("y", position->y, allocator);
 
-        rapidjson::Document::StringRefType status_value(status.at(player.status).c_str());
-        object.AddMember("status", status_value, allocator);
+    Document::StringRefType status_value(status.at(player->status).c_str());
+    object.AddMember("status", status_value, allocator);
 
-        rapidjson::Document::StringRefType direction_value(direction.at(player.aim_direction).c_str());
-        object.AddMember("aiming-to", direction_value, allocator);
+    Document::StringRefType direction_value(direction.at(player->aim_direction).c_str());
+    object.AddMember("aiming-to", direction_value, allocator);
 
-        objects_array.PushBack(object, allocator);
-    });
+    players_array.PushBack(object, allocator);
+}
+
+void Rendering::drawArrow(entityx::Entity & entity, rapidjson::Value & arrows_array, rapidjson::Document::AllocatorType & allocator) const
+{
+    using namespace arrakis::components;
+    using namespace rapidjson;
+
+    auto position = entity.component<Position>();
+
+    Value object; // [id, x, y]
+    object.SetObject();
+
+    object.AddMember("x", position->x, allocator);
+    object.AddMember("y", position->y, allocator);
+
+    arrows_array.PushBack(object, allocator);
 }
