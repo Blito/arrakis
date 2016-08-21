@@ -28,13 +28,15 @@ struct PlayerControlled
         : controlled_by(controlled_by),
           status(Status::IDLE),
           aim_direction(Direction::NONE),
-          ammo(5) {}
+          ammo(-1) {}
 
     core::PlayerID controlled_by;
 
     Status status;
 
-    Direction aim_direction;
+    Direction aim_direction; //< only changed when pressing AIM
+
+    bool facing_left = true; //< changed when pressing walking keys
 
     unsigned int ammo;
 };

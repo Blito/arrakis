@@ -38,9 +38,15 @@ void PlayerController::update(entityx::EntityManager & entities, entityx::EventM
         if (should_fire)
         {
             spawn_arrow(entities, *entity.component<Position>().get(), character);
+            character.ammo--;
         }
 
         character.status = Status::IDLE;
+
+        if (right != left)
+        {
+            character.facing_left = left;
+        }
 
         if (collider.airborn)
         {
@@ -80,6 +86,12 @@ void PlayerController::update(entityx::EntityManager & entities, entityx::EventM
         }
         else
         {
+            // If aiming and not free-falling, stop the player
+            if (character.status != Status::AIRBORN)
+            {
+                physics.velocity.x = 0.0f;
+            }
+
             if (!((up && down) || (right && left)))
             {
                 if (up)
@@ -120,6 +132,11 @@ void PlayerController::update(entityx::EntityManager & entities, entityx::EventM
                 {
                     character.aim_direction = Direction::W;
                 }
+                else
+                {
+                    // no key being pressed, fire at facing direction
+                    character.aim_direction = character.facing_left ? Direction::W : Direction::E;
+                }
             }
         }
     });
@@ -127,11 +144,66 @@ void PlayerController::update(entityx::EntityManager & entities, entityx::EventM
 
 void PlayerController::spawn_arrow(entityx::EntityManager & entity_manager, Position & player_position, PlayerControlled & player_info) const
 {
+    constexpr float full_speed = 0.2f;
+    constexpr float diag_speed = full_speed * std::sin(3.14159 / 4.0);
+
+    utils::vec2f arrow_velocity;
+    float starting_x = player_position.x, starting_y = player_position.y, starting_delta = 15;
+    auto& direction = player_info.aim_direction;
+    switch (direction)
+    {
+        case PlayerControlled::Direction::N:
+            arrow_velocity = {0.0f, full_speed};
+            starting_y += starting_delta;
+        break;
+        case PlayerControlled::Direction::NE:
+            arrow_velocity = {diag_speed, diag_speed};
+            starting_y += starting_delta;
+            starting_x += starting_delta;
+        break;
+        case PlayerControlled::Direction::E:
+            arrow_velocity = {full_speed, 0.0f};
+            starting_x += starting_delta;
+        break;
+        case PlayerControlled::Direction::SE:
+            arrow_velocity = {diag_speed, -diag_speed};
+            starting_y -= starting_delta;
+            starting_x += starting_delta;
+        break;
+        case PlayerControlled::Direction::S:
+            arrow_velocity = {0.0f, -full_speed};
+            starting_y -= starting_delta;
+        break;
+        case PlayerControlled::Direction::SW:
+            arrow_velocity = {-diag_speed, -diag_speed};
+            starting_y -= starting_delta;
+            starting_x -= starting_delta;
+        break;
+        case PlayerControlled::Direction::W:
+            arrow_velocity = {-full_speed, 0.0f};
+            starting_x -= starting_delta;
+        break;
+        case PlayerControlled::Direction::NW:
+            arrow_velocity = {-diag_speed, diag_speed};
+            starting_y += starting_delta;
+            starting_x -= starting_delta;
+        break;
+    }
+
     auto arrow = entity_manager.create();
 
-    arrow.assign<Position>(player_position.x+10, player_position.y+5);
+    arrow.assign<Position>(starting_x, starting_y);
     auto physics = arrow.assign<Physics>(1.0f, true, utils::vec2f{0.6f, 0.6f});
-    physics->velocity = utils::vec2f{0.005f, 0.01f};
-    arrow.assign<BoxCollider>(-4, 4, -4, 4);
+    physics->velocity = arrow_velocity;
+    auto collider = arrow.assign<BoxCollider>(BoxCollider::Tag::ARROW, -4, 4, -4, 4);
     arrow.assign<Rendering>(Rendering::Tag::ARROW);
+
+    collider->on_collision = [] (Collision collision)
+    {
+        if (collision.other_collider.tag == BoxCollider::Tag::PLAYER ||
+            collision.other_collider.tag == BoxCollider::Tag::STATIC)
+        {
+            collision.own_entity.destroy();
+        }
+    };
 }
