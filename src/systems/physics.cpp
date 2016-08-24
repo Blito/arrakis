@@ -20,7 +20,7 @@ void Physics::update(entityx::EntityManager & entities, entityx::EventManager & 
 void Physics::update_positions(entityx::EntityManager &entities, entityx::TimeDelta dt)
 {
     using namespace arrakis::components;
-    entities.each<Position, components::Physics>([dt](entityx::Entity entity, Position & position, components::Physics & physics)
+    entities.each<Position, components::Physics>([dt, this](entityx::Entity entity, Position & position, components::Physics & physics)
     {
         float _dt = dt;
 
@@ -44,6 +44,8 @@ void Physics::update_positions(entityx::EntityManager &entities, entityx::TimeDe
         // velocity -> position
         position.x += physics.velocity.x * _dt;
         position.y += physics.velocity.y * _dt;
+
+        loop_over_world(position);
     });
 }
 
@@ -187,34 +189,25 @@ void Physics::solve_collision(entityx::Entity & entity_1,
 
 }
 
-void Physics::keep_in_world_bounds(float & x, float & y, bool & collided)
+void Physics::loop_over_world(components::Position & position)
 {
-    collided = false;
-    if (x < world_bounds_x.min)
+    auto world_width = world_bounds_x.max - world_bounds_x.min;
+    if (position.x < world_bounds_x.min)
     {
-        collided = true;
-        x = world_bounds_x.min;
+        position.x += world_width;
     }
-    else if (x > world_bounds_x.max)
+    else if (position.x > world_bounds_x.max)
     {
-        collided = true;
-        x = world_bounds_x.max;
+        position.x -= world_width;
     }
 
-    if (y < world_bounds_y.min)
+    auto world_height = world_bounds_y.max - world_bounds_y.min;
+    if (position.y < world_bounds_y.min)
     {
-        y = world_bounds_y.min;
+        position.y += world_height;
     }
-    else if (y > world_bounds_y.max)
+    else if (position.y > world_bounds_y.max)
     {
-        y = world_bounds_y.max;
-    }
-}
-
-void Physics::round_to_static(float & magnitude, float threshold)
-{
-    if (std::abs(magnitude) < threshold)
-    {
-        magnitude = 0.0f;
+        position.y -= world_height;
     }
 }

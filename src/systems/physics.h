@@ -36,11 +36,8 @@ protected:
                          bool vertical_collision,
                          bool horizontal_collision);
 
-    // Keeps x and y between world_bounds_x and world_bounds_y
-    void keep_in_world_bounds(float & x, float & y, bool &collided);
-
-    // Rounds magnitude to 0 of lower than abs(static_threshold)
-    void round_to_static(float & magnitude, float threshold);
+    // if out of world bounds, loop elements over it.
+    void loop_over_world(components::Position & position);
 
     static constexpr float gravity = -0.000098f; // [pixels / ms]
     static constexpr float static_threshold = 0.000001f;
