@@ -6,6 +6,9 @@
 #include <components/physics.h>
 #include <components/position.h>
 #include <components/rendering.h>
+
+#include <core/gameobjects.h>
+
 #include <systems/input.h>
 
 using namespace arrakis::systems;
@@ -191,21 +194,5 @@ void PlayerController::spawn_arrow(entityx::EntityManager & entity_manager, Posi
         break;
     }
 
-    auto arrow = entity_manager.create();
-
-    arrow.assign<Position>(starting_x, starting_y);
-    auto physics = arrow.assign<Physics>(1.0f, false, utils::vec2f{0.6f, 0.6f});
-    physics->velocity = arrow_velocity;
-    auto collider = arrow.assign<BoxCollider>(BoxCollider::Tag::ARROW, -4, 4, -4, 4);
-    arrow.assign<Rendering>(Rendering::Tag::ARROW);
-    arrow.assign<Animation>(physics->has_gravity, 1);
-
-    collider->on_collision = [] (Collision collision)
-    {
-        if (collision.other_collider.tag == BoxCollider::Tag::PLAYER ||
-            collision.other_collider.tag == BoxCollider::Tag::STATIC)
-        {
-            collision.own_entity.destroy();
-        }
-    };
+    core::game_objects::arrow::create(entity_manager, starting_x, starting_y, arrow_velocity.x, arrow_velocity.y);
 }

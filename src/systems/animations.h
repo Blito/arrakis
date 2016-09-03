@@ -9,6 +9,9 @@ namespace arrakis
 namespace systems
 {
 
+// WARNING/DISCLAIMER: The whole animations system is incomplete.
+//  - Curve IDs are not being considered/used.
+//  - Only animation supported is turning a boolean property ON after X ms.
 class Animations : public entityx::System<Animations>
 {
 public:

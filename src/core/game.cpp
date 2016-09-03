@@ -5,6 +5,7 @@
 #include <chrono>
 
 #include <core/constants.h>
+#include <core/gameobjects.h>
 #include <core/message.h>
 #include <components/boxcollider.h>
 #include <components/physics.h>
@@ -95,16 +96,5 @@ bool Game::is_paused() const
 
 void Game::notify(Message msg, PlayerID player)
 {
-    auto new_player = entity_manager.create();
-
-    new_player.assign<components::Position>(50, 50);
-    new_player.assign<components::Physics>(5.0f, true, utils::vec2f{0.5f, 0.5f});
-    auto collider = new_player.assign<components::BoxCollider>(components::BoxCollider::Tag::PLAYER, -10, 10, -10, 10);
-    new_player.assign<components::Rendering>(components::Rendering::Tag::PLAYER);
-    new_player.assign<components::PlayerControlled>(player);
-
-    collider->on_collision = [](components::Collision collision)
-    {
-        //std::cout << "Collided against entity " << collision.other_entity << std::endl;
-    };
+    game_objects::player::create(entity_manager, player, 50.0, 50.0f);
 }
