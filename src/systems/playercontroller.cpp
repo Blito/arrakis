@@ -1,5 +1,6 @@
 #include "playercontroller.h"
 
+#include <components/animation.h>
 #include <components/boxcollider.h>
 #include <components/playercontrolled.h>
 #include <components/physics.h>
@@ -193,10 +194,11 @@ void PlayerController::spawn_arrow(entityx::EntityManager & entity_manager, Posi
     auto arrow = entity_manager.create();
 
     arrow.assign<Position>(starting_x, starting_y);
-    auto physics = arrow.assign<Physics>(1.0f, true, utils::vec2f{0.6f, 0.6f});
+    auto physics = arrow.assign<Physics>(1.0f, false, utils::vec2f{0.6f, 0.6f});
     physics->velocity = arrow_velocity;
     auto collider = arrow.assign<BoxCollider>(BoxCollider::Tag::ARROW, -4, 4, -4, 4);
     arrow.assign<Rendering>(Rendering::Tag::ARROW);
+    arrow.assign<Animation>(physics->has_gravity, 1);
 
     collider->on_collision = [] (Collision collision)
     {

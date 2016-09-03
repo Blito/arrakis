@@ -11,6 +11,7 @@
 #include <components/playercontrolled.h>
 #include <components/position.h>
 #include <components/rendering.h>
+#include <systems/animations.h>
 #include <systems/input.h>
 #include <systems/physics.h>
 #include <systems/playercontroller.h>
@@ -26,6 +27,7 @@ Game::Game(int server_port) :
     systems_manager.add<systems::PlayerController>(input_system);
     systems_manager.add<systems::Physics>();
     systems_manager.add<systems::Rendering>(networking_system);
+    systems_manager.add<systems::Animations>();
     systems_manager.configure();
 
     init_scene();
@@ -60,6 +62,7 @@ void Game::run()
         systems_manager.update<systems::PlayerController>(tick_length_ms);
         systems_manager.update<systems::Physics>(tick_length_ms);
         systems_manager.update<systems::Rendering>(tick_length_ms);
+        systems_manager.update<systems::Animations>(tick_length_ms);
 
         auto time_elapsed = high_resolution_clock::now() - start_time;
 

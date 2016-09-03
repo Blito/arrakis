@@ -83,6 +83,8 @@ void Rendering::drawPlayer(entityx::Entity & entity, rapidjson::Value & players_
     Document::StringRefType direction_value(direction.at(player->aim_direction).c_str());
     object.AddMember("aiming-to", direction_value, allocator);
 
+    object.AddMember("ammo", player->ammo, allocator);
+
     players_array.PushBack(object, allocator);
 }
 
