@@ -9,6 +9,8 @@
 
 #include <utils/vec2.h>
 
+#include <array>
+
 namespace arrakis
 {
 
@@ -37,12 +39,24 @@ protected:
                          bool horizontal_collision);
 
     // if out of world bounds, loop elements over it.
-    void loop_over_world(components::Position & position);
+    void loop_over_world(components::Position & position) const;
+
+    bool types_collide(arrakis::components::BoxCollider::Tag type_1,
+                       arrakis::components::BoxCollider::Tag type_2) const;
 
     static constexpr float gravity = -0.000098f; // [pixels / ms]
     static constexpr float static_threshold = 0.000001f;
 
     struct { float min, max; } world_bounds_x {0, 500}, world_bounds_y {0, 500};
+
+    bool collision_matrix[arrakis::components::BoxCollider::tag_count][arrakis::components::BoxCollider::tag_count] =
+    {
+    /*              PLAYER  ARROW  POWERUP  STATIC */
+    /* PLAYER  */ { false,  true,   true,    true},
+    /* ARROW   */ { true,   false,  false,   true},
+    /* POWERUP */ { true,   false,  false,   false},
+    /* STATIC  */ { true,   true,   false,   false}
+    };
 };
 
 } // end systems

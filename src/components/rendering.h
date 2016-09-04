@@ -12,7 +12,8 @@ struct Rendering
     enum class Tag
     {
         PLAYER,
-        ARROW
+        ARROW,
+        ARROW_POWER_UP
     };
 
     Rendering(Tag tag, bool enabled = true) : tag(tag), enabled(enabled) {}

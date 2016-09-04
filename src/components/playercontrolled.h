@@ -28,7 +28,7 @@ struct PlayerControlled
         : controlled_by(controlled_by),
           status(Status::IDLE),
           aim_direction(Direction::NONE),
-          ammo(-1) {}
+          ammo(max_ammo) {}
 
     core::PlayerID controlled_by;
 
@@ -39,6 +39,8 @@ struct PlayerControlled
     bool facing_left = true; //< changed when pressing walking keys
 
     unsigned int ammo;
+
+    constexpr static unsigned int max_ammo = 5;
 };
 
 } // end components

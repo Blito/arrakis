@@ -53,14 +53,48 @@ entityx::Entity arrow::create(entityx::EntityManager & entity_manager,
     // Turn gravity ON after one second
     arrow.assign<Animation>(physics->has_gravity, 1);
 
-    collider->on_collision = [] (Collision collision)
+    collider->on_collision = [&entity_manager] (Collision collision)
     {
         if (collision.other_collider.tag == BoxCollider::Tag::PLAYER ||
             collision.other_collider.tag == BoxCollider::Tag::STATIC)
         {
+            // Create an arrow powerup where our arrow was destroyed.
+            auto position = collision.own_entity.component<Position>();
+            powerup::create(entity_manager, position->x, position->y);
+
             collision.own_entity.destroy();
         }
     };
 
     return arrow;
+}
+
+entityx::Entity powerup::create(entityx::EntityManager & entity_manager,
+                                float position_x, float position_y)
+{
+    auto power_up = entity_manager.create();
+
+    power_up.assign<Position>(position_x, position_y);
+
+    auto collider = power_up.assign<BoxCollider>(BoxCollider::Tag::POWER_UP, -defaults::collider_half_width, defaults::collider_half_width,
+                                                               -defaults::collider_half_height, defaults::collider_half_height);
+
+    power_up.assign<Rendering>(Rendering::Tag::ARROW_POWER_UP);
+
+    collider->on_collision = [] (Collision collision)
+    {
+        if (collision.other_collider.tag == BoxCollider::Tag::PLAYER)
+        {
+            auto player = collision.other_entity.component<PlayerControlled>();
+
+            if (player->ammo < PlayerControlled::max_ammo)
+            {
+                collision.own_entity.destroy();
+
+                player->ammo++;
+            }
+        }
+    };
+
+    return power_up;
 }

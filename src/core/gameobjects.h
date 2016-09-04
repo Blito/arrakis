@@ -19,10 +19,10 @@ namespace player
     namespace defaults
     {
         constexpr float mass = 5.0f;
-        constexpr float max_velocity_x = 0.5;
-        constexpr float max_velocity_y = 0.5;
-        constexpr float collider_half_width = 10;
-        constexpr float collider_half_height = 10;
+        constexpr float max_velocity_x = 0.5f;
+        constexpr float max_velocity_y = 0.5f;
+        constexpr float collider_half_width = 10.0f;
+        constexpr float collider_half_height = 10.0f;
     }
 
     entityx::Entity create(entityx::EntityManager & entity_manager, PlayerID player,
@@ -32,12 +32,13 @@ namespace player
 namespace arrow
 {
 
-    namespace defaults {
+    namespace defaults
+    {
         constexpr float mass = 1.0f;
-        constexpr float max_velocity_x = 0.6;
-        constexpr float max_velocity_y = 0.6;
-        constexpr float collider_half_width = 4;
-        constexpr float collider_half_height = 4;
+        constexpr float max_velocity_x = 0.6f;
+        constexpr float max_velocity_y = 0.6f;
+        constexpr float collider_half_width = 4.0f;
+        constexpr float collider_half_height = 4.0f;
     }
 
     entityx::Entity create(entityx::EntityManager & entity_manager,
@@ -45,7 +46,22 @@ namespace arrow
                            float velocity_x, float velocity_y);
 }
 
+namespace powerup
+{
+
+    namespace defaults
+    {
+        constexpr float mass = 5.0f;
+        constexpr float collider_half_width = 10.0f;
+        constexpr float collider_half_height = 10.0f;
+    }
+
+    entityx::Entity create(entityx::EntityManager & entity_manager,
+                           float position_x, float position_y);
+
 }
+
+} // end game_objects
 
 } // end core
 } // end arrakis

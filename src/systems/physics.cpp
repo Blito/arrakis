@@ -4,6 +4,8 @@
 #include <components/position.h>
 #include <components/physics.h>
 
+#include <core/message.h> // core::enum_index
+
 #include <array>
 #include <limits>
 
@@ -72,7 +74,7 @@ void Physics::check_collisions(entityx::EntityManager & entities, entityx::TimeD
         auto up_1    = position_1->y + collider_1->y_max;
 
         for (entityx::Entity entity_2 : entities_2) {
-            if (entity_1 != entity_2)
+            if (entity_1 != entity_2 && types_collide(collider_1->tag, collider_2->tag))
             {
                 auto left_2  = position_2->x + collider_2->x_min;
                 auto right_2 = position_2->x + collider_2->x_max;
@@ -189,7 +191,7 @@ void Physics::solve_collision(entityx::Entity & entity_1,
 
 }
 
-void Physics::loop_over_world(components::Position & position)
+void Physics::loop_over_world(components::Position & position) const
 {
     auto world_width = world_bounds_x.max - world_bounds_x.min;
     if (position.x < world_bounds_x.min)
@@ -210,4 +212,10 @@ void Physics::loop_over_world(components::Position & position)
     {
         position.y -= world_height;
     }
+}
+
+bool Physics::types_collide(arrakis::components::BoxCollider::Tag type_1,
+                            arrakis::components::BoxCollider::Tag type_2) const
+{
+    return collision_matrix[core::enum_index(type_1)][core::enum_index(type_2)];
 }

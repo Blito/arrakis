@@ -25,24 +25,28 @@ void Rendering::update(entityx::EntityManager & entities, entityx::EventManager 
     Document frame;
     frame.SetObject();
 
-    // Create empty arrays for characters and arrows.
+    // Create empty arrays for characters, arrows and powerups
     Value players_array(kArrayType);
     Value arrows_array(kArrayType);
+    Value powerups_array(kArrayType);
 
     auto& allocator = frame.GetAllocator();
 
     entities.each<components::Rendering>(
-    [&players_array, &arrows_array, &allocator, this](entityx::Entity entity, components::Rendering & rendering)
+    [&](entityx::Entity entity, components::Rendering & rendering)
     {
         if (rendering.enabled)
         {
             switch (rendering.tag)
             {
             case components::Rendering::Tag::PLAYER:
-                drawPlayer(entity, players_array, allocator);
+                draw_player(entity, players_array, allocator);
                 break;
             case components::Rendering::Tag::ARROW:
-                drawArrow(entity, arrows_array, allocator);
+                draw_arrow(entity, arrows_array, allocator);
+                break;
+            case components::Rendering::Tag::ARROW_POWER_UP:
+                draw_power_up(entity, powerups_array, allocator);
                 break;
             }
         }
@@ -50,6 +54,7 @@ void Rendering::update(entityx::EntityManager & entities, entityx::EventManager 
 
     frame.AddMember("players", players_array, allocator);
     frame.AddMember("arrows", arrows_array, allocator);
+    frame.AddMember("powerups", powerups_array, allocator);
 
     StringBuffer sb;
     Writer<StringBuffer> writer(sb);
@@ -59,7 +64,7 @@ void Rendering::update(entityx::EntityManager & entities, entityx::EventManager 
     networking_system.send_message({core::MessageType::Output, sb.GetString()});
 }
 
-void Rendering::drawPlayer(entityx::Entity & entity, rapidjson::Value & players_array, rapidjson::Document::AllocatorType & allocator) const
+void Rendering::draw_player(entityx::Entity & entity, rapidjson::Value & players_array, rapidjson::Document::AllocatorType & allocator) const
 {
     using namespace arrakis::components;
     using namespace rapidjson;
@@ -88,7 +93,7 @@ void Rendering::drawPlayer(entityx::Entity & entity, rapidjson::Value & players_
     players_array.PushBack(object, allocator);
 }
 
-void Rendering::drawArrow(entityx::Entity & entity, rapidjson::Value & arrows_array, rapidjson::Document::AllocatorType & allocator) const
+void Rendering::draw_arrow(entityx::Entity & entity, rapidjson::Value & arrows_array, rapidjson::Document::AllocatorType & allocator) const
 {
     using namespace arrakis::components;
     using namespace rapidjson;
@@ -102,4 +107,20 @@ void Rendering::drawArrow(entityx::Entity & entity, rapidjson::Value & arrows_ar
     object.AddMember("y", position->y, allocator);
 
     arrows_array.PushBack(object, allocator);
+}
+
+void Rendering::draw_power_up(entityx::Entity & entity, rapidjson::Value & powerups_array, rapidjson::Document::AllocatorType & allocator) const
+{
+    using namespace arrakis::components;
+    using namespace rapidjson;
+
+    auto position = entity.component<Position>();
+
+    Value object; // [id, x, y]
+    object.SetObject();
+
+    object.AddMember("x", position->x, allocator);
+    object.AddMember("y", position->y, allocator);
+
+    powerups_array.PushBack(object, allocator);
 }

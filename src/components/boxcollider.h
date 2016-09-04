@@ -14,7 +14,7 @@ struct Collision
     Collision(entityx::Entity & own_entity,
               const struct BoxCollider & other_collider,
               const struct Position & other_position,
-              const entityx::Entity & other_entity)
+              entityx::Entity & other_entity)
         : own_entity(own_entity),
           other_collider(other_collider),
           other_position(other_position),
@@ -23,18 +23,19 @@ struct Collision
     entityx::Entity & own_entity;
     const BoxCollider & other_collider;
     const Position & other_position;
-    const entityx::Entity & other_entity;
+    entityx::Entity & other_entity;
 };
 
 struct BoxCollider
 {
     enum class Tag
     {
-        PLAYER,
-        ARROW,
-        POWER_UP,
-        STATIC
+        PLAYER   = 0,
+        ARROW    = 1,
+        POWER_UP = 2,
+        STATIC   = 3
     };
+    constexpr static size_t tag_count = 4;
 
     BoxCollider(Tag tag, float x_min, float x_max, float y_min, float y_max,
                 bool enabled_vertical = true, bool enabled_horizontal = true,
