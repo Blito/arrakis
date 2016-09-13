@@ -28,6 +28,8 @@ protected:
 
     void notify(Message msg, PlayerID player) override;
 
+    void remove_player(PlayerID player);
+
     entityx::EntityManager entity_manager;
 
     entityx::EventManager event_manager;

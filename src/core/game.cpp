@@ -38,6 +38,7 @@ Game::Game(int server_port) :
         networking_system.register_to(MessageType::Input, input_system);
         networking_system.register_to(MessageType::ClientDisconnected, input_system);
         networking_system.register_to(MessageType::NewClient, *this);
+        networking_system.register_to(MessageType::ClientDisconnected, *this);
         networking_system.start_server();
         std::cout << "Server started in port " << server_port << std::endl;
     }
@@ -96,5 +97,29 @@ bool Game::is_paused() const
 
 void Game::notify(Message msg, PlayerID player)
 {
-    game_objects::player::create(entity_manager, player, 50.0, 50.0f);
+    switch (msg.type)
+    {
+
+    case core::MessageType::NewClient:
+    {
+        game_objects::player::create(entity_manager, player, 50.0, 50.0f);
+    }
+        break;
+
+    case core::MessageType::ClientDisconnected:
+    {
+        remove_player(player);
+    }
+        break;
+
+    }
+}
+
+void Game::remove_player(PlayerID player)
+{
+    entity_manager.each<components::PlayerControlled>(
+    [](entityx::Entity entity, components::PlayerControlled & player)
+    {
+        entity.destroy();
+    });
 }
