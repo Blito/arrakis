@@ -115,11 +115,14 @@ void Game::notify(Message msg, PlayerID player)
     }
 }
 
-void Game::remove_player(PlayerID player)
+void Game::remove_player(PlayerID player_id)
 {
     entity_manager.each<components::PlayerControlled>(
-    [](entityx::Entity entity, components::PlayerControlled & player)
+    [player_id](entityx::Entity entity, components::PlayerControlled & player)
     {
-        entity.destroy();
+        if (player_id == player.controlled_by)
+        {
+            entity.destroy();
+        }
     });
 }

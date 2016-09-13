@@ -28,7 +28,7 @@ protected:
 
     void notify(Message msg, PlayerID player) override;
 
-    void remove_player(PlayerID player);
+    void remove_player(PlayerID player_id);
 
     entityx::EntityManager entity_manager;
 
