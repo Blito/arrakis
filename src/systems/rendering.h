@@ -28,9 +28,10 @@ public:
     void update(entityx::EntityManager & entities, entityx::EventManager & events, entityx::TimeDelta dt) override;
 
 protected:
-    void draw_player(entityx::Entity & entity, rapidjson::Value & players_array, rapidjson::Document::AllocatorType & allocator) const;
-    void draw_arrow(entityx::Entity & entity, rapidjson::Value & arrows_array, rapidjson::Document::AllocatorType & allocator) const;
-    void draw_power_up(entityx::Entity & entity, rapidjson::Value & arrows_array, rapidjson::Document::AllocatorType & allocator) const;
+    // dump contents from entities into JSONs to be sent to clients
+    void draw_player(entityx::Entity & player_entity, rapidjson::Value & players_array, rapidjson::Document::AllocatorType & allocator) const;
+    void draw_arrow(entityx::Entity & arrow, rapidjson::Value & arrows_array, rapidjson::Document::AllocatorType & allocator) const;
+    void draw_power_up(entityx::Entity & powerup, rapidjson::Value & arrows_array, rapidjson::Document::AllocatorType & allocator) const;
 
     Networking & networking_system;
 

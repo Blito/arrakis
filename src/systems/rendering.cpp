@@ -64,7 +64,7 @@ void Rendering::update(entityx::EntityManager & entities, entityx::EventManager 
     networking_system.send_message({core::MessageType::Output, sb.GetString()});
 }
 
-void Rendering::draw_player(entityx::Entity & entity, rapidjson::Value & players_array, rapidjson::Document::AllocatorType & allocator) const
+void Rendering::draw_player(entityx::Entity & player_entity, rapidjson::Value & players_array, rapidjson::Document::AllocatorType & allocator) const
 {
     using namespace arrakis::components;
     using namespace rapidjson;
@@ -72,8 +72,8 @@ void Rendering::draw_player(entityx::Entity & entity, rapidjson::Value & players
     const std::unordered_map<PlayerControlled::Status, std::string, EnumClassHash> & status = this->status_text;
     const std::unordered_map<PlayerControlled::Direction, std::string, EnumClassHash> & direction = this->direction_text;
 
-    auto position = entity.component<Position>();
-    auto player = entity.component<PlayerControlled>();
+    auto position = player_entity.component<Position>();
+    auto player = player_entity.component<PlayerControlled>();
 
     Value object; // [id, x, y]
     object.SetObject();
@@ -93,32 +93,34 @@ void Rendering::draw_player(entityx::Entity & entity, rapidjson::Value & players
     players_array.PushBack(object, allocator);
 }
 
-void Rendering::draw_arrow(entityx::Entity & entity, rapidjson::Value & arrows_array, rapidjson::Document::AllocatorType & allocator) const
+void Rendering::draw_arrow(entityx::Entity & arrow, rapidjson::Value & arrows_array, rapidjson::Document::AllocatorType & allocator) const
 {
     using namespace arrakis::components;
     using namespace rapidjson;
 
-    auto position = entity.component<Position>();
+    auto position = arrow.component<Position>();
 
     Value object; // [id, x, y]
     object.SetObject();
 
+    object.AddMember("id", arrow.id().index(), allocator);
     object.AddMember("x", position->x, allocator);
     object.AddMember("y", position->y, allocator);
 
     arrows_array.PushBack(object, allocator);
 }
 
-void Rendering::draw_power_up(entityx::Entity & entity, rapidjson::Value & powerups_array, rapidjson::Document::AllocatorType & allocator) const
+void Rendering::draw_power_up(entityx::Entity & powerup, rapidjson::Value & powerups_array, rapidjson::Document::AllocatorType & allocator) const
 {
     using namespace arrakis::components;
     using namespace rapidjson;
 
-    auto position = entity.component<Position>();
+    auto position = powerup.component<Position>();
 
     Value object; // [id, x, y]
     object.SetObject();
 
+    object.AddMember("id", powerup.id().index(), allocator);
     object.AddMember("x", position->x, allocator);
     object.AddMember("y", position->y, allocator);
 

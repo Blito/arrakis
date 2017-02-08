@@ -7,8 +7,8 @@ using namespace arrakis::systems;
 Networking::Networking(systems::Input & input_system, int port) :
     input_system(input_system)
 {
-    auto message_handler = [this] (auto hdl, auto msg) { on_message(hdl, msg); };
-    auto close_handler = [this](auto hdl){ on_disconnect(hdl); };
+    auto message_handler = [this] (auto hdl, auto msg) { this->on_message(hdl, msg); };
+    auto close_handler = [this](auto hdl){ this->on_disconnect(hdl); };
 
     server.set_message_handler(message_handler);
     server.set_close_handler(close_handler);
